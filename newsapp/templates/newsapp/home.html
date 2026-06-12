@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>NewsWire | News Aggregator</title>
+    <script>document.documentElement.dataset.theme = localStorage.getItem('news_theme') || 'dark';</script>
+    <link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{% url 'home' %}">NEWS<span>WIRE</span></a>
+        <form class="search-form" method="get" action="{% url 'home' %}">
+            <input type="hidden" name="category" value="{{ category }}">
+            <label class="sr-only" for="search-input">Search news</label>
+            <input id="search-input" name="q" value="{{ q }}" maxlength="100" placeholder="Search articles, companies, or topics">
+            <button type="submit">Search</button>
+        </form>
+        <nav class="top-actions" aria-label="Account navigation">
+            <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Theme</button>
+            <a href="{% url 'saved_articles' %}">Bookmarks <span class="count">{{ total_saved }}</span></a>
+            <a href="{% url 'profile' %}">Profile</a>
+            <form class="logout-form" method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        <section class="hero">
+            <div>
+                <p class="eyebrow">Top Headlines</p>
+                <h1>{% if q %}Results for &quot;{{ q }}&quot;{% else %}{{ category|title }} headlines{% endif %}</h1>
+<p>Explore the latest news by category and save articles for later reading.</p>            </div>
+            <div class="stats" aria-label="Account statistics">
+                <div><strong>{{ total_saved }}</strong><span>Bookmarks</span></div>
+                <div><strong>{{ total_searches }}</strong><span>Searches</span></div>
+                <div><strong>{{ top_keyword }}</strong><span>Top query</span></div>
+            </div>
+        </section>
+
+        <nav class="categories" aria-label="News categories">
+            {% for key, label in categories.items %}
+                <a href="?category={{ key }}" class="{% if category == key and not q %}active{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </nav>
+
+        {% if recent_searches %}
+        <div class="recent-searches">
+            <span>Recent:</span>
+            {% for term in recent_searches %}<a href="?q={{ term|urlencode }}&category={{ category }}">{{ term }}</a>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="content-grid">
+            <section>
+                <div class="section-heading">
+                    <div><p class="eyebrow">Latest News</p><h2>News feed</h2></div>
+                    <span>Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
+                </div>
+
+                <div class="article-grid">
+                    {% for article in articles %}
+                    <article class="article-card">
+                        {% if article.urlToImage %}<img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.remove()">{% endif %}
+                        <div class="card-body">
+                            <div class="article-meta"><span>{{ article.source.name }}</span><time>{{ article.time_ago }}</time></div>
+                            <h3>{{ article.title }}</h3>
+                            <p>{{ article.description|default:"Open the full story for complete coverage." }}</p>
+                            <div class="card-actions">
+                                <button class="bookmark-button" type="button" data-title="{{ article.title }}" data-url="{{ article.url }}" data-image="{{ article.urlToImage }}">Bookmark</button>
+                                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">Read article</a>
+                            </div>
+                        </div>
+                    </article>
+                    {% empty %}
+                    <div class="empty-state"><h3>No articles found</h3><p>Try another search or choose a category.</p></div>
+                    {% endfor %}
+                </div>
+
+                {% if articles.paginator.num_pages > 1 %}
+                <nav class="pagination" aria-label="Pagination">
+                    {% if articles.has_previous %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.previous_page_number }}">Previous</a>{% endif %}
+                    {% for number in articles.paginator.page_range %}
+                        {% if number == articles.number %}<span aria-current="page">{{ number }}</span>
+                        {% elif number >= articles.number|add:"-2" and number <= articles.number|add:"2" %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ number }}">{{ number }}</a>{% endif %}
+                    {% endfor %}
+                    {% if articles.has_next %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.next_page_number }}">Next</a>{% endif %}
+                </nav>
+                {% endif %}
+            </section>
+
+            <aside class="trending-panel">
+                <div class="section-heading"><div><p class="eyebrow">Trending News</p><h2>Trending now</h2></div></div>
+                <ol>
+                    {% for article in trending_articles %}
+                    <li><span>{{ forloop.counter|stringformat:"02d" }}</span><div><p>{{ article.source.name }} - {{ article.time_ago }}</p><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></div></li>
+                    {% empty %}<li>Trending stories are temporarily unavailable.</li>{% endfor %}
+                </ol>
+            </aside>
+        </div>
+    </main>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="{% static 'newsapp/dashboard.js' %}" defer></script>
+</body>
+</html>
