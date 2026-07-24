@@ -27,7 +27,7 @@ class NewsCache(models.Model):
         return f"Cache for query: {self.query}"
 
 
-# NEW MODEL: USER SEARCH TRACKING AND LOGGING MATRIX
+# User search history logging
 class SearchLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="search_logs")
     keyword = models.CharField(max_length=100)

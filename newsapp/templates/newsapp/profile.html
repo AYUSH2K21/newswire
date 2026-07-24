@@ -1,1 +1,57 @@
-{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NewsWire | Profile</title><link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}"></head><body><header class="site-header"><a class="brand" href="{% url 'home' %}">NEWS<span>WIRE</span></a><a class="button" href="{% url 'home' %}">Back to dashboard</a></header><main class="page"><div class="page-heading"><h1>Account analytics</h1><p>Search and bookmark activity for {{ request.user.username }}</p></div><section class="stat-grid"><div class="stat"><span class="muted">Bookmarked articles</span><strong>{{ total_saved }}</strong></div><div class="stat"><span class="muted">Searches</span><strong>{{ total_searches }}</strong></div></section><section class="list-panel"><h2>Top searches</h2>{% for log in top_keywords %}<div class="keyword"><span>{{ log.keyword }}</span><strong>{{ log.search_count }}</strong></div>{% empty %}<p class="muted">No searches recorded yet.</p>{% endfor %}</section></main></body></html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsWire | Analytics</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}?v=10.0">
+</head>
+<body>
+    <!-- Ambient Floating Background Orbs -->
+    <div class="ambient-bubbles" aria-hidden="true">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">⚡ NEWS<span>WIRE</span></a>
+        <a class="button" href="{% url 'home' %}">← Back to Dashboard</a>
+    </header>
+
+    <main class="page">
+        <div class="page-heading">
+            <h1>Account Analytics</h1>
+            <p>Search engagement & bookmark activity matrix for @{{ request.user.username }}</p>
+        </div>
+
+        <section class="stat-grid">
+            <div class="stat">
+                <span class="muted">Saved Bookmarks</span>
+                <strong>{{ total_saved }}</strong>
+            </div>
+            <div class="stat">
+                <span class="muted">Search Queries Executed</span>
+                <strong>{{ total_searches }}</strong>
+            </div>
+        </section>
+
+        <section class="list-panel">
+            <h2>Top Search Keywords</h2>
+            {% for log in top_keywords %}
+            <div class="keyword">
+                <span>🔍 {{ log.keyword }}</span>
+                <strong>{{ log.search_count }} searches</strong>
+            </div>
+            {% empty %}
+            <p class="muted">No search queries logged yet.</p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

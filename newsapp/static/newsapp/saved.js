@@ -1,25 +1,51 @@
 (() => {
-    const container = document.getElementById("toast-container");
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    function notify(message, error = false) {
-        container.innerHTML = "";
+    function getCsrfToken() {
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta && csrfMeta.content) return csrfMeta.content;
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        return cookieValue || "";
+    }
+
+    function showToast(message, error = false) {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
         const toast = document.createElement("div");
         toast.className = error ? "toast error" : "toast";
         toast.textContent = message;
         container.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
+        window.setTimeout(() => { toast.remove(); }, 2600);
     }
+
     document.querySelectorAll(".remove-bookmark").forEach((button) => {
         button.addEventListener("click", async () => {
-            if (!window.confirm("Remove this bookmark?")) return;
-            const body = new URLSearchParams({article_id: button.dataset.articleId});
+            const articleId = button.dataset.articleId;
+            const card = document.getElementById(`bookmark-card-${articleId}`);
+            const token = getCsrfToken();
+
             try {
-                const response = await fetch("/delete/", {method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded","X-CSRFToken":csrfToken}, body});
+                const response = await fetch("/delete/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": token,
+                    },
+                    body: new URLSearchParams({ article_id: articleId }),
+                });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Unable to remove bookmark");
-                document.getElementById(`bookmark-card-${button.dataset.articleId}`)?.remove();
-                notify("Bookmark removed");
-            } catch (error) { notify(error.message, true); }
+                if (!response.ok) throw new Error(data.message || "Failed to remove bookmark");
+                if (card) {
+                    card.style.transition = "all 0.3s ease";
+                    card.style.opacity = "0";
+                    card.style.transform = "scale(0.9)";
+                    window.setTimeout(() => card.remove(), 300);
+                }
+                showToast("Bookmark removed successfully");
+            } catch (error) {
+                showToast(error.message, true);
+            }
         });
     });
 })();

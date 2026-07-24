@@ -5,40 +5,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>NewsWire | News Aggregator</title>
+    <title>NewsWire | Global Intelligence & Breaking News Aggregator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>document.documentElement.dataset.theme = localStorage.getItem('news_theme') || 'dark';</script>
-    <link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}?v=10.0">
 </head>
 <body>
+    <!-- Reading Progress Bar -->
+    <div id="scroll-progress"></div>
+
+    <!-- Ambient Glowing Background Orbs -->
+    <div class="ambient-bubbles" aria-hidden="true">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+    </div>
+
+    <!-- Editorial Top utility bar -->
+    <div class="utility-bar">
+        <div class="utility-container">
+            <div class="utility-left">
+                <span class="live-date">📅 FRIDAY, JUL 24</span>
+                <span class="utility-divider">•</span>
+                <span class="weather-widget">🌤️ 28°C New York</span>
+            </div>
+            <div class="utility-right">
+                <span class="market-pulse">📈 S&amp;P 500 +0.42%</span>
+                <span class="utility-divider">•</span>
+                <span class="market-pulse">NASDAQ +0.85%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Editorial Glass Header -->
     <header class="topbar">
-        <a class="brand" href="{% url 'home' %}">NEWS<span>WIRE</span></a>
-        <form class="search-form" method="get" action="{% url 'home' %}">
-            <input type="hidden" name="category" value="{{ category }}">
-            <label class="sr-only" for="search-input">Search news</label>
-            <input id="search-input" name="q" value="{{ q }}" maxlength="100" placeholder="Search articles, companies, or topics">
-            <button type="submit">Search</button>
-        </form>
-        <nav class="top-actions" aria-label="Account navigation">
-            <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Theme</button>
-            <a href="{% url 'saved_articles' %}">Bookmarks <span class="count">{{ total_saved }}</span></a>
-            <a href="{% url 'profile' %}">Profile</a>
-            <form class="logout-form" method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form>
-        </nav>
+        <div class="topbar-inner">
+            <a class="brand" href="{% url 'home' %}">
+                <span class="brand-icon">⚡</span>
+                <span class="brand-text">NEWS<span>WIRE</span></span>
+                <span class="brand-badge">EDITORIAL</span>
+            </a>
+
+            <form class="search-form" method="get" action="{% url 'home' %}">
+                <input type="hidden" name="category" value="{{ category }}">
+                <label class="sr-only" for="search-input">Search news</label>
+                <input id="search-input" name="q" value="{{ q }}" maxlength="100" placeholder="Search global news, companies, or topics...">
+                <span class="search-shortcut">⌘K</span>
+                <button type="submit">Search</button>
+            </form>
+
+            <nav class="top-actions" aria-label="Account navigation">
+                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌙 Theme</button>
+                <a href="{% url 'saved_articles' %}" class="bookmark-link">
+                    🔖 Bookmarks <span class="count">{{ total_saved }}</span>
+                </a>
+                <a href="{% url 'profile' %}" class="profile-link">📊 Analytics</a>
+                <form class="logout-form" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Sign Out</button>
+                </form>
+            </nav>
+        </div>
     </header>
 
+    <!-- Breaking News Ticker Bar -->
+    {% if trending_articles %}
+    <div class="news-ticker-bar" aria-label="Breaking news marquee">
+        <div class="ticker-label">
+            <span class="ticker-dot"></span>
+            LIVE BREAKING
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-track">
+                {% for article in trending_articles %}
+                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+                        <span>•</span> {{ article.title }}
+                    </a>
+                {% endfor %}
+                {% for article in trending_articles %}
+                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+                        <span>•</span> {{ article.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Page Layout -->
     <main class="page-shell">
-        <section class="hero">
-            <div>
-                <p class="eyebrow">Top Headlines</p>
-                <h1>{% if q %}Results for &quot;{{ q }}&quot;{% else %}{{ category|title }} headlines{% endif %}</h1>
-<p>Explore the latest news by category and save articles for later reading.</p>            </div>
-            <div class="stats" aria-label="Account statistics">
-                <div><strong>{{ total_saved }}</strong><span>Bookmarks</span></div>
-                <div><strong>{{ total_searches }}</strong><span>Searches</span></div>
-                <div><strong>{{ top_keyword }}</strong><span>Top query</span></div>
+        <!-- Editorial Featured Spotlight Hero -->
+        {% if articles and not q and category == 'general' %}
+        <section class="editorial-spotlight">
+            <!-- Lead Primary Article -->
+            {% with lead=articles.0 %}
+            <article class="spotlight-lead">
+                <div class="spotlight-media">
+                    <span class="source-tag">{{ lead.source.name }}</span>
+                    {% if lead.urlToImage %}
+                        <img src="{{ lead.urlToImage }}" alt="" loading="eager" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+                    {% endif %}
+                </div>
+                <div class="spotlight-content">
+                    <div class="spotlight-meta">
+                        <span class="badge-featured">🔥 FEATURED STORY</span>
+                        <span>⏱️ {{ lead.estimated_reading_time }}</span>
+                        <time>{{ lead.time_ago }}</time>
+                    </div>
+                    <h2><a href="{{ lead.url }}" target="_blank" rel="noopener noreferrer">{{ lead.title }}</a></h2>
+                    <p>{{ lead.description|default:"Read full exclusive coverage from verified global publishers." }}</p>
+                    <div class="spotlight-actions">
+                        <button class="bookmark-button" type="button" data-title="{{ lead.title }}" data-url="{{ lead.url }}" data-image="{{ lead.urlToImage }}">❤️ Bookmark</button>
+                        <a href="{{ lead.url }}" target="_blank" rel="noopener noreferrer" class="read-lead-btn">Read Full Story →</a>
+                    </div>
+                </div>
+            </article>
+            {% endwith %}
+
+            <!-- Side Secondary Highlights Stack -->
+            <div class="spotlight-stack">
+                {% for article in articles|slice:"1:3" %}
+                <article class="stack-card">
+                    <div class="stack-media">
+                        {% if article.urlToImage %}
+                            <img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+                        {% endif %}
+                    </div>
+                    <div class="stack-body">
+                        <span class="stack-source">{{ article.source.name }} • {{ article.time_ago }}</span>
+                        <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></h3>
+                    </div>
+                </article>
+                {% endfor %}
             </div>
         </section>
+        {% endif %}
 
+        <!-- Category Pill Navigation Bar -->
         <nav class="categories" aria-label="News categories">
             {% for key, label in categories.items %}
                 <a href="?category={{ key }}" class="{% if category == key and not q %}active{% endif %}">{{ label }}</a>
@@ -47,60 +154,144 @@
 
         {% if recent_searches %}
         <div class="recent-searches">
-            <span>Recent:</span>
-            {% for term in recent_searches %}<a href="?q={{ term|urlencode }}&category={{ category }}">{{ term }}</a>{% endfor %}
+            <span class="recent-title">⚡ Quick Searches:</span>
+            {% for term in recent_searches %}
+                <a href="?q={{ term|urlencode }}&category={{ category }}">{{ term }}</a>
+            {% endfor %}
         </div>
         {% endif %}
 
+        <!-- Two Column Main Editorial Grid -->
         <div class="content-grid">
-            <section>
+            <!-- Left Column: Articles Grid -->
+            <section class="feed-section">
                 <div class="section-heading">
-                    <div><p class="eyebrow">Latest News</p><h2>News feed</h2></div>
-                    <span>Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
+                    <div>
+                        <p class="eyebrow">EDITORIAL FEED</p>
+                        <h2>{% if q %}Results for &quot;{{ q }}&quot;{% else %}{{ category|title }} Stories{% endif %}</h2>
+                    </div>
+                    <span class="page-count">Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
                 </div>
 
                 <div class="article-grid">
                     {% for article in articles %}
                     <article class="article-card">
-                        {% if article.urlToImage %}<img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.remove()">{% endif %}
+                        <div class="card-media {% if not article.urlToImage %}no-image{% endif %}">
+                            <span class="source-badge">{{ article.source.name }}</span>
+                            {% if article.urlToImage %}
+                                <img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+                            {% endif %}
+                        </div>
                         <div class="card-body">
-                            <div class="article-meta"><span>{{ article.source.name }}</span><time>{{ article.time_ago }}</time></div>
-                            <h3>{{ article.title }}</h3>
-                            <p>{{ article.description|default:"Open the full story for complete coverage." }}</p>
+                            <div class="article-meta">
+                                <span>⏱️ {{ article.estimated_reading_time }}</span>
+                                <time>{{ article.time_ago }}</time>
+                            </div>
+                            <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></h3>
+                            <p>{{ article.description|default:"Click below to open the complete coverage from original source." }}</p>
                             <div class="card-actions">
-                                <button class="bookmark-button" type="button" data-title="{{ article.title }}" data-url="{{ article.url }}" data-image="{{ article.urlToImage }}">Bookmark</button>
-                                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">Read article</a>
+                                <button class="bookmark-button" type="button" data-title="{{ article.title }}" data-url="{{ article.url }}" data-image="{{ article.urlToImage }}">❤️ Bookmark</button>
+                                <a class="read-link" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">Read Story →</a>
                             </div>
                         </div>
                     </article>
                     {% empty %}
-                    <div class="empty-state"><h3>No articles found</h3><p>Try another search or choose a category.</p></div>
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>No articles found</h3>
+                        <p>Try searching for another topic or explore categories above.</p>
+                    </div>
                     {% endfor %}
                 </div>
 
+                <!-- Infinite Scroll Sentinel & Load More Trigger -->
+                <div id="infinite-scroll-sentinel" data-next-page="{% if articles.has_next %}{{ articles.next_page_number }}{% endif %}" data-category="{{ category }}" data-query="{{ q }}">
+                    {% if articles.has_next %}
+                        <button id="load-more-btn" type="button" class="load-more-button">⚡ Load More Stories</button>
+                    {% endif %}
+                </div>
+
+                <!-- Pagination -->
                 {% if articles.paginator.num_pages > 1 %}
                 <nav class="pagination" aria-label="Pagination">
-                    {% if articles.has_previous %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.previous_page_number }}">Previous</a>{% endif %}
+                    {% if articles.has_previous %}
+                        <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.previous_page_number }}">← Prev</a>
+                    {% endif %}
                     {% for number in articles.paginator.page_range %}
-                        {% if number == articles.number %}<span aria-current="page">{{ number }}</span>
-                        {% elif number >= articles.number|add:"-2" and number <= articles.number|add:"2" %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ number }}">{{ number }}</a>{% endif %}
+                        {% if number == articles.number %}
+                            <span aria-current="page">{{ number }}</span>
+                        {% elif number >= articles.number|add:"-2" and number <= articles.number|add:"2" %}
+                            <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ number }}">{{ number }}</a>
+                        {% endif %}
                     {% endfor %}
-                    {% if articles.has_next %}<a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.next_page_number }}">Next</a>{% endif %}
+                    {% if articles.has_next %}
+                        <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.next_page_number }}">Next →</a>
+                    {% endif %}
                 </nav>
                 {% endif %}
             </section>
 
-            <aside class="trending-panel">
-                <div class="section-heading"><div><p class="eyebrow">Trending News</p><h2>Trending now</h2></div></div>
-                <ol>
-                    {% for article in trending_articles %}
-                    <li><span>{{ forloop.counter|stringformat:"02d" }}</span><div><p>{{ article.source.name }} - {{ article.time_ago }}</p><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></div></li>
-                    {% empty %}<li>Trending stories are temporarily unavailable.</li>{% endfor %}
-                </ol>
+            <!-- Right Column: Industry Sidebar Widgets -->
+            <aside class="sidebar">
+                <!-- Trending Stories Widget -->
+                <div class="sidebar-widget trending-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">🔥</span>
+                        <h3>Trending Ranking</h3>
+                    </div>
+                    <ol class="trending-list">
+                        {% for article in trending_articles %}
+                        <li>
+                            <span class="rank-number">0{{ forloop.counter }}</span>
+                            <div class="trending-info">
+                                <p class="trending-meta">{{ article.source.name }} • {{ article.time_ago }}</p>
+                                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li>Updating trending feed...</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+
+                <!-- Quick Stats & Activity Box -->
+                <div class="sidebar-widget stats-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">⚡</span>
+                        <h3>Your Activity Digest</h3>
+                    </div>
+                    <div class="widget-stats-grid">
+                        <div class="stat-box">
+                            <strong>{{ total_saved }}</strong>
+                            <span>Bookmarks</span>
+                        </div>
+                        <div class="stat-box">
+                            <strong>{{ total_searches }}</strong>
+                            <span>Searches</span>
+                        </div>
+                    </div>
+                    <div class="top-keyword-pill">
+                        <span>Top Search:</span>
+                        <strong>{{ top_keyword }}</strong>
+                    </div>
+                </div>
+
+                <!-- Newsletter Digest Subscription Box -->
+                <div class="sidebar-widget newsletter-widget">
+                    <span class="newsletter-badge">DAILY DIGEST</span>
+                    <h3>Stay Informed Daily</h3>
+                    <p>Get top morning headlines delivered directly to your dashboard inbox.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to daily news digest!');">
+                        <input type="email" placeholder="Enter your email address" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
             </aside>
         </div>
     </main>
+
+    <!-- Toast Notification Popup -->
     <div id="toast" role="status" aria-live="polite"></div>
-    <script src="{% static 'newsapp/dashboard.js' %}" defer></script>
+    <script src="{% static 'newsapp/dashboard.js' %}?v=10.0" defer></script>
 </body>
 </html>

@@ -15,6 +15,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from .models import NewsCache, SavedArticle, SearchLog
@@ -25,15 +26,15 @@ GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
 CACHE_TTL = timedelta(minutes=15)
 URL_VALIDATOR = URLValidator(schemes=["http", "https"])
 CATEGORIES = {
-    "general": "General",
-    "world": "World",
-    "nation": "Nation",
-    "business": "Business",
-    "technology": "Technology",
-    "entertainment": "Entertainment",
-    "sports": "Sports",
-    "science": "Science",
-    "health": "Health",
+    "general": "🌐 General",
+    "world": "🌍 World",
+    "nation": "🏛️ Nation",
+    "business": "💼 Business",
+    "technology": "💻 Technology",
+    "entertainment": "🎬 Entertainment",
+    "sports": "⚽ Sports",
+    "science": "🔬 Science",
+    "health": "🩺 Health",
 }
 
 
@@ -167,6 +168,7 @@ def _trim_search_history(user, limit=1000):
         SearchLog.objects.filter(user=user, id__lt=cutoff_ids[0]).delete()
 
 
+@ensure_csrf_cookie
 @login_required(login_url="login")
 def home(request):
     search_query = request.GET.get("q", "").strip()[:100]
@@ -205,6 +207,17 @@ def home(request):
             break
 
     page_obj = Paginator(articles, 9).get_page(request.GET.get("page", 1))
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest" or request.GET.get("format") == "json":
+        return JsonResponse({
+            "status": "success",
+            "articles": list(page_obj.object_list),
+            "has_next": page_obj.has_next(),
+            "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
+            "page": page_obj.number,
+            "total_pages": page_obj.paginator.num_pages,
+        })
+
     top_keyword = (
         history.values("keyword")
         .annotate(search_count=Count("keyword"))
@@ -284,7 +297,10 @@ def delete_article(request):
     return JsonResponse({"status": "deleted" if deleted else "error"}, status=200 if deleted else 404)
 
 
+@ensure_csrf_cookie
 def register_user(request):
+    if request.user.is_authenticated:
+        return redirect("home")
     form = UserCreationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.save()
@@ -293,7 +309,10 @@ def register_user(request):
     return render(request, "newsapp/register.html", {"form": form})
 
 
+@ensure_csrf_cookie
 def login_user(request):
+    if request.user.is_authenticated:
+        return redirect("home")
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())

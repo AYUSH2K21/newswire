@@ -1,1 +1,35 @@
-{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NewsWire | Create account</title><link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}"></head><body><main class="auth-shell"><section class="auth-card"><a class="brand" href="{% url 'home' %}">NEWS<span>WIRE</span></a><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button primary" type="submit">Create account</button></form><div class="auth-footer">Already registered? <a href="{% url 'login' %}">Sign in</a></div></section></main></body></html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsWire | Create Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}?v=3.0">
+</head>
+<body>
+    <!-- Ambient Floating Bubbles -->
+    <div class="ambient-bubbles" aria-hidden="true">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <main class="auth-shell">
+        <section class="auth-card">
+            <a class="brand" href="{% url 'home' %}">⚡ NEWS<span>WIRE</span></a>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="button primary" type="submit">Create Account →</button>
+            </form>
+            <div class="auth-footer">
+                Already registered? <a href="{% url 'login' %}">Sign In</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

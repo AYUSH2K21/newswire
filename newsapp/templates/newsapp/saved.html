@@ -1,1 +1,76 @@
-{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-token" content="{{ csrf_token }}"><title>NewsWire | Bookmarks</title><link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}"></head><body><div id="toast-container" role="status" aria-live="polite"></div><header class="site-header"><a class="brand" href="{% url 'home' %}">NEWS<span>WIRE</span></a><a class="button" href="{% url 'home' %}">Back to dashboard</a></header><main class="page"><div class="page-heading"><h1>Your bookmarks</h1><p>Saved articles for {{ request.user.username }}</p></div><div class="cards">{% for item in saved_news %}<article class="card" id="bookmark-card-{{ item.id }}">{% if item.image %}<img src="{{ item.image }}" alt="" loading="lazy" onerror="this.remove()">{% endif %}<div class="card-body"><span class="card-meta">Saved {{ item.created_at|date:"M d, Y" }}</span><h2>{{ item.title }}</h2><div class="card-actions"><button class="button danger remove-bookmark" type="button" data-article-id="{{ item.id }}">Remove</button><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Read original</a></div></div></article>{% empty %}<div class="empty"><h2>No bookmarks yet</h2><p class="muted">Save articles from the dashboard to see them here.</p></div>{% endfor %}</div>{% if saved_news.paginator.num_pages > 1 %}<nav class="pagination" aria-label="Pagination">{% if saved_news.has_previous %}<a href="?page={{ saved_news.previous_page_number }}">Previous</a>{% endif %}<span>{{ saved_news.number }} / {{ saved_news.paginator.num_pages }}</span>{% if saved_news.has_next %}<a href="?page={{ saved_news.next_page_number }}">Next</a>{% endif %}</nav>{% endif %}</main><script src="{% static 'newsapp/saved.js' %}" defer></script></body></html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>NewsWire | Saved Reading List</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}?v=10.0">
+</head>
+<body>
+    <!-- Ambient Floating Background Orbs -->
+    <div class="ambient-bubbles" aria-hidden="true">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <div id="toast-container" role="status" aria-live="polite"></div>
+
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">⚡ NEWS<span>WIRE</span></a>
+        <a class="button" href="{% url 'home' %}">← Back to Dashboard</a>
+    </header>
+
+    <main class="page">
+        <div class="page-heading">
+            <h1>Saved Bookmarks</h1>
+            <p>Personal reading list for @{{ request.user.username }}</p>
+        </div>
+
+        <div class="cards">
+            {% for item in saved_news %}
+            <article class="card" id="bookmark-card-{{ item.id }}">
+                <div class="card-media {% if not item.image %}no-image{% endif %}">
+                    {% if item.image %}
+                        <img src="{{ item.image }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="card-meta">Saved {{ item.created_at|date:"M d, Y" }}</span>
+                    <h2>{{ item.title }}</h2>
+                    <div class="card-actions">
+                        <button class="button danger remove-bookmark" type="button" data-article-id="{{ item.id }}">🗑️ Remove</button>
+                        <a class="button primary" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Read Original →</a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty">
+                <h2>No Bookmarks Saved Yet</h2>
+                <p class="muted">Explore stories on the home feed and click Bookmark to save articles here for later reading.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if saved_news.paginator.num_pages > 1 %}
+        <nav class="pagination" aria-label="Pagination">
+            {% if saved_news.has_previous %}
+                <a href="?page={{ saved_news.previous_page_number }}">← Previous</a>
+            {% endif %}
+            <span>Page {{ saved_news.number }} of {{ saved_news.paginator.num_pages }}</span>
+            {% if saved_news.has_next %}
+                <a href="?page={{ saved_news.next_page_number }}">Next →</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </main>
+
+    <script src="{% static 'newsapp/saved.js' %}?v=10.0" defer></script>
+</body>
+</html>

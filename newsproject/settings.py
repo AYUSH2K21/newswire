@@ -26,10 +26,10 @@ if not SECRET_KEY:
 DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv(
-    "ALLOWED_HOSTS", "127.0.0.1,localhost" if DEBUG else ""
+    "ALLOWED_HOSTS", "127.0.0.1,localhost,127.0.0.1:8000,localhost:8000,*" if DEBUG else ""
 ).split(",") if host.strip()]
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv(
-    "CSRF_TRUSTED_ORIGINS", ""
+    "CSRF_TRUSTED_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000,http://127.0.0.1,http://localhost"
 ).split(",") if origin.strip()]
 if not DEBUG and not ALLOWED_HOSTS:
     raise RuntimeError("ALLOWED_HOSTS must be set when DEBUG is False")
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'newsproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # IMPORTANT
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,7 +84,6 @@ DATABASES = {
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# IMPORTANT FIX
 STATICFILES_DIRS = []
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

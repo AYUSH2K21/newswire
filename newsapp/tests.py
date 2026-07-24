@@ -93,3 +93,8 @@ class NewsAppTests(TestCase):
     def test_profile_page_access(self):
         self.login()
         self.assertEqual(self.client.get(reverse("profile")).status_code, 200)
+
+    def test_authenticated_user_redirected_from_auth_pages(self):
+        self.login()
+        self.assertRedirects(self.client.get(reverse("login")), reverse("home"))
+        self.assertRedirects(self.client.get(reverse("register")), reverse("home"))
