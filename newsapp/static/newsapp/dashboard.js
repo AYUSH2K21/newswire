@@ -57,12 +57,12 @@
         }
     }
 
-    // Theme Management
+    // Theme Management System
     function setTheme(theme) {
         root.dataset.theme = theme;
         localStorage.setItem("news_theme", theme);
         if (themeButton) {
-            themeButton.textContent = theme === "dark" ? "☀️ Theme" : "🌙 Theme";
+            themeButton.textContent = theme === "dark" ? "🌞 Theme" : "🌙 Theme";
         }
     }
 
@@ -119,7 +119,7 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    const colors = ['#00f2fe', '#a855f7', '#ff007f', '#00f5d4'];
+    const colors = ['#dc2626', '#ef4444', '#fbbf24', '#e11d48'];
     const particleCount = Math.min(45, Math.floor(window.innerWidth / 32));
 
     for (let i = 0; i < particleCount; i++) {

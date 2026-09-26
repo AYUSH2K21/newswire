@@ -47,7 +47,7 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'newsapp/css/dashboard.css' %}?v=12.0"
+        href="{% static 'newsapp/css/dashboard.css' %}?v=19.0"
     >
 
 </head>
@@ -130,7 +130,17 @@
 
     </div>
 
-
+    <!-- Live Breaking News Ticker Bar -->
+    <div class="live-ticker-bar">
+        <div class="ticker-tag">
+            <span class="live-dot"></span> BREAKING NEWS
+        </div>
+        <div class="ticker-wrapper">
+            <div class="ticker-content">
+                🔴 LIVE STREAM: Real-time global breaking headlines updated every minute • Tech, Business, World & National updates live on NewsWire • ⚡ Stay tuned for live coverage!
+            </div>
+        </div>
+    </div>
 
     <!-- =====================================================
          HEADER
@@ -139,7 +149,6 @@
     <header class="topbar">
 
         <div class="topbar-inner">
-
 
             <!-- Brand -->
 
@@ -159,6 +168,8 @@
                 <span class="brand-badge">
                     NEWSROOM
                 </span>
+
+                <span class="live-dot" title="Live Studio Stream"></span>
 
             </a>
 
@@ -225,14 +236,16 @@
                 aria-label="Account navigation"
             >
 
-
                 <button
                     id="theme-toggle"
                     type="button"
                     aria-label="Toggle theme"
                 >
-                    Theme
+                    🌞 Theme
                 </button>
+
+
+
 
 
                 <a
@@ -1292,7 +1305,7 @@
          DASHBOARD JS
     ====================================================== -->
 
-    <script src="{% static 'newsapp/dashboard.js' %}?v=15.0" defer></script>
+    <script src="{% static 'newsapp/dashboard.js' %}?v=18.0" defer></script>
 
 
 </body>

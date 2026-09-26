@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>document.documentElement.dataset.theme=localStorage.getItem('news_theme')||'dark';</script>
-<link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}?v=12.0">
+<link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}?v=19.0">
 <style>
 /* =========================================================
    ANALYTICS + BOOKMARKS — HOMEPAGE UI SYSTEM
@@ -97,7 +97,6 @@
             <a class="brand" href="{% url 'home' %}">
                 <span class="brand-icon">⚡</span>
                 <span class="brand-text">NEWS<span>WIRE</span></span>
-                <span class="brand-badge">EDITORIAL</span>
             </a>
 
             <form class="search-form" method="get" action="{% url 'home' %}">
@@ -110,7 +109,7 @@
             </form>
 
             <nav class="top-actions" aria-label="Account navigation">
-                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌙 Theme</button>
+                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌞 Theme</button>
                 <a href="{% url 'saved_articles' %}" class="bookmark-link">
                     🔖 Bookmarks <span class="count">{{ total_saved }}</span>
                 </a>
