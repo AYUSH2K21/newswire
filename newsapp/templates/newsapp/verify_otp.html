@@ -12,7 +12,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>NewsWire | Sign In</title>
+    <title>NewsWire | Verify Email</title>
 
 
     <!-- Font -->
@@ -182,9 +182,9 @@
 
             z-index: 2;
 
-            color: white;
-
             text-decoration: none;
+
+            color: white;
 
             font-size: 22px;
 
@@ -245,14 +245,6 @@
             height: 27px;
 
             stroke: #a5b4fc;
-
-            fill: none;
-
-            stroke-width: 1.7;
-
-            stroke-linecap: round;
-
-            stroke-linejoin: round;
 
         }
 
@@ -347,112 +339,17 @@
         }
 
 
-
         /* =========================
-           DJANGO FORM
+           ERROR
         ========================== */
 
-        .django-form p {
-
-            margin-bottom: 20px;
-
-        }
-
-
-        .django-form label {
-
-            display: block;
-
-            margin-bottom: 9px;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            color: #374151;
-
-        }
-
-
-        .django-form input {
-
-            width: 100%;
-
-            height: 54px;
-
-            border: 1px solid #e5e7eb;
-
-            border-radius: 13px;
-
-            padding: 0 16px;
-
-            outline: none;
-
-            font-family: inherit;
-
-            font-size: 14px;
-
-            color: #111827;
-
-            background: white;
-
-            transition: 0.2s ease;
-
-        }
-
-
-        .django-form input:focus {
-
-            border-color: #818cf8;
-
-            box-shadow:
-                0 0 0 4px rgba(99, 102, 241, 0.09);
-
-        }
-
-
-        .django-form input::placeholder {
-
-            color: #a1a1aa;
-
-        }
-
-
-        .django-form ul.errorlist {
-
-            list-style: none;
-
-            margin: 0 0 8px;
-
-            padding: 0;
-
-            color: #b91c1c;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-        }
-
-
-
-        /* =========================
-           FORM ERROR
-        ========================== */
-
-        .form-error {
+        .message {
 
             padding: 13px 15px;
 
-            margin-bottom: 20px;
-
             border-radius: 12px;
 
-            color: #b91c1c;
-
-            background: #fef2f2;
-
-            border: 1px solid #fecaca;
+            margin-bottom: 20px;
 
             font-size: 13px;
 
@@ -463,10 +360,88 @@
         }
 
 
+        .message.error {
+
+            color: #b91c1c;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+
+        }
+
+
 
         /* =========================
-           BUTTON
+           OTP
         ========================== */
+
+        .otp-label {
+
+            display: block;
+
+            margin-bottom: 10px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #374151;
+
+        }
+
+
+        .otp-input {
+
+            width: 100%;
+
+            height: 64px;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 14px;
+
+            outline: none;
+
+            background: #ffffff;
+
+            color: #111827;
+
+            font-family: inherit;
+
+            font-size: 25px;
+
+            font-weight: 800;
+
+            letter-spacing: 12px;
+
+            text-align: center;
+
+            padding-left: 12px;
+
+            transition: 0.2s ease;
+
+        }
+
+
+        .otp-input::placeholder {
+
+            color: #d1d5db;
+
+            letter-spacing: 9px;
+
+        }
+
+
+        .otp-input:focus {
+
+            border-color: #818cf8;
+
+            box-shadow:
+                0 0 0 4px rgba(99, 102, 241, 0.09);
+
+        }
+
 
         .button {
 
@@ -474,7 +449,7 @@
 
             height: 54px;
 
-            margin-top: 4px;
+            margin-top: 20px;
 
             border: none;
 
@@ -509,75 +484,78 @@
         }
 
 
-
         /* =========================
-           FORGOT PASSWORD
+           ACTION LINKS
         ========================== */
 
-        .forgot-link {
+        .otp-actions {
 
-            display: block;
+            display: flex;
 
-            margin-top: 18px;
+            align-items: center;
 
-            text-align: right;
+            justify-content: center;
 
-            color: #4f46e5;
+            gap: 14px;
 
-            text-decoration: none;
+            margin-top: 24px;
 
-            font-size: 12px;
+            font-size: 13px;
 
             font-weight: 700;
 
         }
 
 
-        .forgot-link:hover {
+        .otp-actions a {
+
+            color: #4f46e5;
+
+            text-decoration: none;
+
+            transition: 0.2s ease;
+
+        }
+
+
+        .otp-actions a:hover {
 
             color: #3730a3;
 
         }
 
 
+        .divider {
 
-        /* =========================
-           REGISTER
-        ========================== */
+            color: #d1d5db;
 
-        .register-box {
+        }
+
+
+        .back-link {
+
+            display: block;
 
             margin-top: 30px;
 
-            padding-top: 24px;
-
-            border-top: 1px solid #eef0f3;
-
             text-align: center;
-
-            font-size: 13px;
 
             color: #6b7280;
 
-        }
-
-
-        .register-box a {
-
-            margin-left: 4px;
-
-            color: #111827;
-
-            font-weight: 700;
-
             text-decoration: none;
 
+            font-size: 13px;
+
+            font-weight: 600;
+
+            transition: 0.2s ease;
+
         }
 
 
-        .register-box a:hover {
+        .back-link:hover {
 
-            color: #4f46e5;
+            color: #111827;
 
         }
 
@@ -649,49 +627,15 @@
 
             }
 
-        }
 
-    
-        /* Password show/hide */
-        .password-field-wrap {
-            position: relative;
-        }
+            .otp-input {
 
-        .password-field-wrap input {
-            padding-right: 52px !important;
-        }
+                font-size: 22px;
 
-        .password-eye {
-            position: absolute;
-            top: 50%;
-            right: 14px;
-            transform: translateY(-50%);
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 0;
-            border-radius: 9px;
-            background: transparent;
-            color: #6b7280;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
+                letter-spacing: 9px;
 
-        .password-eye:hover {
-            color: #4f46e5;
-            background: #eef2ff;
-        }
+            }
 
-        .password-eye svg {
-            width: 19px;
-            height: 19px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
         }
 
     </style>
@@ -716,7 +660,7 @@
 
 
             <a
-                href="{% url 'home' %}"
+                href="{% url 'login' %}"
                 class="brand"
             >
                 NEWS<span>WIRE</span>
@@ -726,11 +670,15 @@
             <div class="visual-content">
 
 
-                <!-- Login Icon -->
-
                 <div class="visual-icon">
 
-                    <svg viewBox="0 0 24 24">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
 
                         <rect
                             x="3"
@@ -750,14 +698,14 @@
 
 
                 <h2>
-                    Stay informed.<br>
-                    Stay connected.
+                    One step<br>
+                    away.
                 </h2>
 
 
                 <p>
-                    Sign in to your account
-                    and keep up with the stories that matter.
+                    Enter the verification code sent
+                    to your email to continue.
                 </p>
 
 
@@ -786,94 +734,106 @@
 
 
                 <h1>
-                    Welcome Back
+                    Verify your email
                 </h1>
 
 
                 <p class="form-subtitle">
-                    Sign in to continue.
+                    Enter the 6-digit code sent to your email.
                 </p>
 
 
 
-                <!-- Django Form -->
+                <!-- Error -->
 
-                <form
-                    method="post"
-                    class="django-form"
-                >
+                {% if error %}
+
+                    <div class="message error">
+
+                        {{ error }}
+
+                    </div>
+
+                {% endif %}
+
+
+
+                <!-- OTP Form -->
+
+                <form method="post">
 
                     {% csrf_token %}
 
 
-                    {{ form.non_field_errors }}
+                    <label
+                        for="otp"
+                        class="otp-label"
+                    >
+                        Verification code
+                    </label>
 
-                    {% for field in form %}
-                        {% if field.name == "password" %}
-                            <p>
-                                {{ field.label_tag }}
-                                <span class="password-field-wrap">
-                                    {{ field }}
-                                    <button type="button"
-                                            class="password-eye"
-                                            data-password-toggle="{{ field.id_for_label }}"
-                                            aria-label="Show password"
-                                            aria-pressed="false">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M3 3l18 18"></path>
-                                            <path d="M10.6 6.2A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.1 3.8"></path>
-                                            <path d="M6.1 6.1C3.8 7.6 2.5 12 2.5 12s3.5 6 9.5 6a9.8 9.8 0 0 0 3.3-.6"></path>
-                                            <path d="M9.9 9.9a2.5 2.5 0 0 0 3.5 3.5"></path>
-                                        </svg>
-                                    </button>
-                                </span>
-                                {{ field.errors }}
-                            </p>
-                        {% else %}
-                            <p>
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {{ field.errors }}
-                            </p>
-                        {% endif %}
-                    {% endfor %}
+
+                    <input
+                        type="text"
+                        id="otp"
+                        name="otp"
+                        class="otp-input"
+                        maxlength="6"
+                        minlength="6"
+                        pattern="[0-9]{6}"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        placeholder="••••••"
+                        required
+                        autofocus
+                    >
 
 
                     <button
                         type="submit"
                         class="button"
                     >
-                        Sign In
+                        Verify Code
                     </button>
 
                 </form>
 
 
 
-                <!-- Forgot Password -->
+                <!-- Actions -->
 
-                <a
-                    href="{% url 'forgot_password' %}"
-                    class="forgot-link"
-                >
-                    Forgot password?
-                </a>
+                <div class="otp-actions">
+
+                    <a
+                        href="{% url 'forgot_password' %}"
+                    >
+                        Resend OTP
+                    </a>
 
 
-
-                <!-- Register -->
-
-                <div class="register-box">
-
-                    <span>
-                        Don't have an account?
+                    <span class="divider">
+                        |
                     </span>
 
-                    <a href="{% url 'register' %}">
-                        Create account
+
+                    <a
+                        href="{% url 'forgot_password' %}"
+                    >
+                        Change email
                     </a>
 
                 </div>
+
+
+
+                <!-- Back -->
+
+                <a
+                    href="{% url 'login' %}"
+                    class="back-link"
+                >
+                    ← Back to Sign In
+                </a>
 
 
             </div>
@@ -888,37 +848,28 @@
 
 
 
+<!-- OTP Input -->
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
-        const input = document.getElementById(button.dataset.passwordToggle);
-        if (!input) return;
 
-        button.addEventListener("click", function () {
-            const showing = input.type === "text";
-            input.type = showing ? "password" : "text";
+    const otpInput =
+        document.getElementById("otp");
 
-            button.setAttribute("aria-pressed", String(!showing));
-            button.setAttribute(
-                "aria-label",
-                showing ? "Show password" : "Hide password"
-            );
 
-            button.innerHTML = showing
-                ? `<svg viewBox="0 0 24 24" aria-hidden="true">
-                     <path d="M3 3l18 18"></path>
-                     <path d="M10.6 6.2A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.1 3.8"></path>
-                     <path d="M6.1 6.1C3.8 7.6 2.5 12 2.5 12s3.5 6 9.5 6a9.8 9.8 0 0 0 3.3-.6"></path>
-                     <path d="M9.9 9.9a2.5 2.5 0 0 0 3.5 3.5"></path>
-                   </svg>`
-                : `<svg viewBox="0 0 24 24" aria-hidden="true">
-                     <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"></path>
-                     <circle cx="12" cy="12" r="2.5"></circle>
-                   </svg>`;
-        });
-    });
-});
+    otpInput.addEventListener(
+        "input",
+        function () {
+
+            this.value =
+                this.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6);
+
+        }
+    );
+
 </script>
+
 
 </body>
 

@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -19,19 +20,28 @@ class NewsAppTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 302)
 
-    @patch("newsapp.views._get_news", return_value=[])
+    @patch("newsapp.views._get_news", return_value=([], None))
     def test_search_is_logged_once_when_paginating(self, _get_news):
         self.login()
         self.client.get(reverse("home"), {"q": "security"})
         self.client.get(reverse("home"), {"q": "security", "page": 2})
         self.assertEqual(SearchLog.objects.count(), 1)
 
-    @patch("newsapp.views._get_news", return_value=[])
+    @patch("newsapp.views._get_news", return_value=([], None))
     def test_long_search_does_not_overflow_cache_key(self, _get_news):
         self.login()
         response = self.client.get(reverse("home"), {"q": "x" * 100})
         self.assertEqual(response.status_code, 200)
         self.assertLessEqual(len(_get_news.call_args_list[0].args[0]), 100)
+
+    @patch("newsapp.views._get_news", return_value=([], None))
+    def test_country_parameter_filtering(self, _get_news):
+        self.login()
+        response = self.client.get(reverse("home"), {"country": "us", "category": "technology"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["country"], "us")
+        cache_key_used = _get_news.call_args_list[0].args[0]
+        self.assertIn("us", cache_key_used)
 
     def test_save_article_and_prevent_duplicate(self):
         self.login()
@@ -94,7 +104,53 @@ class NewsAppTests(TestCase):
         self.login()
         self.assertEqual(self.client.get(reverse("profile")).status_code, 200)
 
+    def test_clear_search_history(self):
+        self.login()
+        SearchLog.objects.create(user=self.user, keyword="python")
+        SearchLog.objects.create(user=self.user, keyword="django")
+        self.assertEqual(SearchLog.objects.filter(user=self.user).count(), 2)
+        response = self.client.post(reverse("clear_search_history"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(SearchLog.objects.filter(user=self.user).count(), 0)
+
+    def test_export_saved_articles(self):
+        self.login()
+        SavedArticle.objects.create(user=self.user, title="Export Test", url="https://example.com/export")
+        response = self.client.get(reverse("export_saved_articles"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+        payload = json.loads(response.content)
+        self.assertEqual(len(payload), 1)
+        self.assertEqual(payload[0]["title"], "Export Test")
+
     def test_authenticated_user_redirected_from_auth_pages(self):
         self.login()
         self.assertRedirects(self.client.get(reverse("login")), reverse("home"))
         self.assertRedirects(self.client.get(reverse("register")), reverse("home"))
+
+    def test_extract_article_content_requires_url(self):
+        self.login()
+        response = self.client.get(reverse("extract_article_content"))
+        self.assertEqual(response.status_code, 400)
+
+    @patch("requests.get")
+    def test_extract_article_content_success(self, mock_get):
+        self.login()
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.text = """
+            <html>
+                <head><meta property="og:title" content="Sample Article Title"><meta property="og:image" content="https://example.com/image.jpg"></head>
+                <body>
+                    <article>
+                        <p>This is paragraph one of the extracted news story with detailed text content.</p>
+                        <p>This is paragraph two providing additional coverage and in-depth reporting.</p>
+                    </article>
+                </body>
+            </html>
+        """
+        response = self.client.get(reverse("extract_article_content"), {"url": "https://example.com/story"})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(len(data["article"]["paragraphs"]), 2)
+        self.assertEqual(data["article"]["title"], "Sample Article Title")

@@ -38,3 +38,17 @@ class SearchLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} searched for '{self.keyword}' at {self.searched_at.strftime('%Y-%m-%d %H:%M')}"
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="password_reset_otps"
+    )
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    attempts = models.PositiveIntegerField(default=0)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Password reset OTP - {self.user.username}"

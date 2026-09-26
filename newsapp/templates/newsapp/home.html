@@ -1,297 +1,1300 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>NewsWire | Global Intelligence & Breaking News Aggregator</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>document.documentElement.dataset.theme = localStorage.getItem('news_theme') || 'dark';</script>
-    <link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}?v=10.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token }}"
+    >
+
+    <title>NewsWire | Global News</title>
+
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script>
+        document.documentElement.dataset.theme =
+            localStorage.getItem("news_theme") || "dark";
+    </script>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'newsapp/css/dashboard.css' %}?v=12.0"
+    >
+
 </head>
+
+
 <body>
-    <!-- Reading Progress Bar -->
+
+
+    <!-- =====================================================
+         READING PROGRESS
+    ====================================================== -->
+
     <div id="scroll-progress"></div>
 
-    <!-- Ambient Glowing Background Orbs -->
-    <div class="ambient-bubbles" aria-hidden="true">
+
+
+    <!-- =====================================================
+         AMBIENT BACKGROUND
+    ====================================================== -->
+
+    <div
+        class="ambient-bubbles"
+        aria-hidden="true"
+    >
+
         <div class="bubble bubble-1"></div>
+
         <div class="bubble bubble-2"></div>
+
         <div class="bubble bubble-3"></div>
+
         <div class="bubble bubble-4"></div>
+
     </div>
 
-    <!-- Editorial Top utility bar -->
+
+
+    <!-- =====================================================
+         UTILITY BAR
+    ====================================================== -->
+
     <div class="utility-bar">
+
         <div class="utility-container">
+
+
             <div class="utility-left">
-                <span class="live-date">📅 FRIDAY, JUL 24</span>
-                <span class="utility-divider">•</span>
-                <span class="weather-widget">🌤️ 28°C New York</span>
+
+                <span
+                    id="live-date"
+                    class="live-date"
+                >
+                    Updating date...
+                </span>
+
+                <span class="utility-divider">
+                    •
+                </span>
+
+                <span
+                    id="live-weather"
+                    class="weather-widget"
+                >
+                    Local weather
+                </span>
+
             </div>
+
+
             <div class="utility-right">
-                <span class="market-pulse">📈 S&amp;P 500 +0.42%</span>
-                <span class="utility-divider">•</span>
-                <span class="market-pulse">NASDAQ +0.85%</span>
+
+                <span class="market-pulse">
+                    News updated throughout the day
+                </span>
+
             </div>
+
+
         </div>
+
     </div>
 
-    <!-- Main Editorial Glass Header -->
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
     <header class="topbar">
+
         <div class="topbar-inner">
-            <a class="brand" href="{% url 'home' %}">
-                <span class="brand-icon">⚡</span>
-                <span class="brand-text">NEWS<span>WIRE</span></span>
-                <span class="brand-badge">EDITORIAL</span>
+
+
+            <!-- Brand -->
+
+            <a
+                class="brand"
+                href="{% url 'home' %}"
+            >
+
+                <span class="brand-icon">
+                    ⚡
+                </span>
+
+                <span class="brand-text">
+                    NEWS<span>WIRE</span>
+                </span>
+
+                <span class="brand-badge">
+                    NEWSROOM
+                </span>
+
             </a>
 
-            <form class="search-form" method="get" action="{% url 'home' %}">
-                <input type="hidden" name="category" value="{{ category }}">
-                <label class="sr-only" for="search-input">Search news</label>
-                <input id="search-input" name="q" value="{{ q }}" maxlength="100" placeholder="Search global news, companies, or topics...">
-                <span class="search-shortcut">⌘K</span>
-                <button type="submit">Search</button>
+
+
+            <!-- Search -->
+
+            <form
+                class="search-form"
+                method="get"
+                action="{% url 'home' %}"
+            >
+
+                <input
+                    type="hidden"
+                    name="category"
+                    value="{{ category }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="country"
+                    value="{{ country }}"
+                >
+
+
+                <label
+                    class="sr-only"
+                    for="search-input"
+                >
+                    Search news
+                </label>
+
+
+                <input
+                    id="search-input"
+                    name="q"
+                    value="{{ q }}"
+                    maxlength="100"
+                    placeholder="Search global news, companies, or topics..."
+                    autocomplete="off"
+                >
+
+
+                <span class="search-shortcut">
+                    Ctrl K
+                </span>
+
+
+                <button
+                    type="submit"
+                >
+                    Search
+                </button>
+
             </form>
 
-            <nav class="top-actions" aria-label="Account navigation">
-                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌙 Theme</button>
-                <a href="{% url 'saved_articles' %}" class="bookmark-link">
-                    🔖 Bookmarks <span class="count">{{ total_saved }}</span>
+
+
+            <!-- Account Navigation -->
+
+            <nav
+                class="top-actions"
+                aria-label="Account navigation"
+            >
+
+
+                <button
+                    id="theme-toggle"
+                    type="button"
+                    aria-label="Toggle theme"
+                >
+                    Theme
+                </button>
+
+
+                <a
+                    href="{% url 'saved_articles' %}"
+                    class="bookmark-link"
+                >
+
+                    Bookmarks
+
+                    <span class="count">
+                        {{ total_saved }}
+                    </span>
+
                 </a>
-                <a href="{% url 'profile' %}" class="profile-link">📊 Analytics</a>
-                <form class="logout-form" method="post" action="{% url 'logout' %}">
+
+
+                <a
+                    href="{% url 'profile' %}"
+                    class="profile-link"
+                >
+                    Analytics
+                </a>
+
+
+                <form
+                    class="logout-form"
+                    method="post"
+                    action="{% url 'logout' %}"
+                >
+
                     {% csrf_token %}
-                    <button type="submit" class="logout-btn">Sign Out</button>
+
+                    <button
+                        type="submit"
+                        class="logout-btn"
+                    >
+                        Sign Out
+                    </button>
+
                 </form>
+
+
             </nav>
+
+
         </div>
+
     </header>
 
-    <!-- Breaking News Ticker Bar -->
-    {% if trending_articles %}
-    <div class="news-ticker-bar" aria-label="Breaking news marquee">
-        <div class="ticker-label">
-            <span class="ticker-dot"></span>
-            LIVE BREAKING
-        </div>
-        <div class="ticker-content">
-            <div class="ticker-track">
-                {% for article in trending_articles %}
-                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
-                        <span>•</span> {{ article.title }}
-                    </a>
-                {% endfor %}
-                {% for article in trending_articles %}
-                    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
-                        <span>•</span> {{ article.title }}
-                    </a>
-                {% endfor %}
+
+
+    <!-- =====================================================
+         API WARNING
+    ====================================================== -->
+
+    {% if api_warning %}
+
+        <div
+            class="api-alert-banner"
+            role="alert"
+        >
+
+            <div class="alert-container">
+
+                <span class="alert-icon">
+                    !
+                </span>
+
+                <span>
+                    {{ api_warning }}
+                </span>
+
             </div>
+
         </div>
-    </div>
+
     {% endif %}
 
-    <!-- Main Page Layout -->
-    <main class="page-shell">
-        <!-- Editorial Featured Spotlight Hero -->
-        {% if articles and not q and category == 'general' %}
-        <section class="editorial-spotlight">
-            <!-- Lead Primary Article -->
-            {% with lead=articles.0 %}
-            <article class="spotlight-lead">
-                <div class="spotlight-media">
-                    <span class="source-tag">{{ lead.source.name }}</span>
-                    {% if lead.urlToImage %}
-                        <img src="{{ lead.urlToImage }}" alt="" loading="eager" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
-                    {% endif %}
-                </div>
-                <div class="spotlight-content">
-                    <div class="spotlight-meta">
-                        <span class="badge-featured">🔥 FEATURED STORY</span>
-                        <span>⏱️ {{ lead.estimated_reading_time }}</span>
-                        <time>{{ lead.time_ago }}</time>
-                    </div>
-                    <h2><a href="{{ lead.url }}" target="_blank" rel="noopener noreferrer">{{ lead.title }}</a></h2>
-                    <p>{{ lead.description|default:"Read full exclusive coverage from verified global publishers." }}</p>
-                    <div class="spotlight-actions">
-                        <button class="bookmark-button" type="button" data-title="{{ lead.title }}" data-url="{{ lead.url }}" data-image="{{ lead.urlToImage }}">❤️ Bookmark</button>
-                        <a href="{{ lead.url }}" target="_blank" rel="noopener noreferrer" class="read-lead-btn">Read Full Story →</a>
-                    </div>
-                </div>
-            </article>
-            {% endwith %}
 
-            <!-- Side Secondary Highlights Stack -->
-            <div class="spotlight-stack">
-                {% for article in articles|slice:"1:3" %}
-                <article class="stack-card">
-                    <div class="stack-media">
-                        {% if article.urlToImage %}
-                            <img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
-                        {% endif %}
-                    </div>
-                    <div class="stack-body">
-                        <span class="stack-source">{{ article.source.name }} • {{ article.time_ago }}</span>
-                        <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></h3>
-                    </div>
-                </article>
-                {% endfor %}
+
+    <!-- =====================================================
+         LATEST NEWS TICKER
+    ====================================================== -->
+
+    {% if trending_articles %}
+
+        <div
+            class="news-ticker-bar"
+            aria-label="Latest news"
+        >
+
+
+            <div class="ticker-label">
+
+                <span class="ticker-dot"></span>
+
+                LATEST NEWS
+
             </div>
-        </section>
-        {% endif %}
 
-        <!-- Category Pill Navigation Bar -->
-        <nav class="categories" aria-label="News categories">
-            {% for key, label in categories.items %}
-                <a href="?category={{ key }}" class="{% if category == key and not q %}active{% endif %}">{{ label }}</a>
-            {% endfor %}
-        </nav>
 
-        {% if recent_searches %}
-        <div class="recent-searches">
-            <span class="recent-title">⚡ Quick Searches:</span>
-            {% for term in recent_searches %}
-                <a href="?q={{ term|urlencode }}&category={{ category }}">{{ term }}</a>
-            {% endfor %}
+            <div class="ticker-content">
+
+                <div class="ticker-track">
+
+
+                    {% for article in trending_articles %}
+
+                        <a
+                            href="{{ article.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+
+                            <span>
+                                •
+                            </span>
+
+                            {{ article.title }}
+
+                        </a>
+
+                    {% endfor %}
+
+
+                    {% for article in trending_articles %}
+
+                        <a
+                            href="{{ article.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+
+                            <span>
+                                •
+                            </span>
+
+                            {{ article.title }}
+
+                        </a>
+
+                    {% endfor %}
+
+
+                </div>
+
+            </div>
+
+
         </div>
-        {% endif %}
 
-        <!-- Two Column Main Editorial Grid -->
-        <div class="content-grid">
-            <!-- Left Column: Articles Grid -->
-            <section class="feed-section">
-                <div class="section-heading">
-                    <div>
-                        <p class="eyebrow">EDITORIAL FEED</p>
-                        <h2>{% if q %}Results for &quot;{{ q }}&quot;{% else %}{{ category|title }} Stories{% endif %}</h2>
-                    </div>
-                    <span class="page-count">Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
-                </div>
+    {% endif %}
 
-                <div class="article-grid">
-                    {% for article in articles %}
-                    <article class="article-card">
-                        <div class="card-media {% if not article.urlToImage %}no-image{% endif %}">
-                            <span class="source-badge">{{ article.source.name }}</span>
-                            {% if article.urlToImage %}
-                                <img src="{{ article.urlToImage }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="page-shell">
+
+
+
+        <!-- =================================================
+             FEATURED STORY
+        ================================================== -->
+
+        {% if articles and not q and category == 'general' %}
+
+            <section class="editorial-spotlight">
+
+
+                <!-- Lead Article -->
+
+                {% with lead=articles.0 %}
+
+                    <article class="spotlight-lead">
+
+
+                        <div class="spotlight-media">
+
+                            <span class="source-tag">
+                                {{ lead.source.name }}
+                            </span>
+
+
+                            {% if lead.urlToImage %}
+
+                                <img
+                                    src="{{ lead.urlToImage }}"
+                                    alt="{{ lead.title }}"
+                                    loading="eager"
+                                    onerror="
+                                        this.style.display='none';
+                                        this.parentElement.classList.add('no-image');
+                                    "
+                                >
+
                             {% endif %}
+
+
                         </div>
-                        <div class="card-body">
-                            <div class="article-meta">
-                                <span>⏱️ {{ article.estimated_reading_time }}</span>
-                                <time>{{ article.time_ago }}</time>
+
+
+
+                        <div class="spotlight-content">
+
+
+                            <div class="spotlight-meta">
+
+                                <span class="badge-featured">
+                                    FEATURED
+                                </span>
+
+                                <span>
+                                    {{ lead.estimated_reading_time }}
+                                </span>
+
+                                <time>
+                                    {{ lead.time_ago }}
+                                </time>
+
                             </div>
-                            <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a></h3>
-                            <p>{{ article.description|default:"Click below to open the complete coverage from original source." }}</p>
-                            <div class="card-actions">
-                                <button class="bookmark-button" type="button" data-title="{{ article.title }}" data-url="{{ article.url }}" data-image="{{ article.urlToImage }}">❤️ Bookmark</button>
-                                <a class="read-link" href="{{ article.url }}" target="_blank" rel="noopener noreferrer">Read Story →</a>
+
+
+
+                            <h2>
+
+                                <a
+                                    href="{{ lead.url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {{ lead.title }}
+                                </a>
+
+                            </h2>
+
+
+
+                            <p>
+                                {{ lead.description|default:"Read the complete coverage from the original publisher." }}
+                            </p>
+
+
+
+                            <div class="spotlight-actions">
+
+
+                                <button
+                                    class="bookmark-button"
+                                    type="button"
+                                    data-title="{{ lead.title }}"
+                                    data-url="{{ lead.url }}"
+                                    data-image="{{ lead.urlToImage }}"
+                                >
+                                    Save Story
+                                </button>
+
+
+                                <a
+                                    href="{{ lead.url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="read-lead-btn"
+                                >
+                                    Read Full Story →
+                                </a>
+
+
                             </div>
+
+
                         </div>
+
+
                     </article>
-                    {% empty %}
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <h3>No articles found</h3>
-                        <p>Try searching for another topic or explore categories above.</p>
-                    </div>
+
+                {% endwith %}
+
+
+
+                <!-- Secondary Stories -->
+
+                <div class="spotlight-stack">
+
+
+                    {% for article in articles|slice:"1:3" %}
+
+                        <article class="stack-card">
+
+
+                            <div class="stack-media">
+
+                                {% if article.urlToImage %}
+
+                                    <img
+                                        src="{{ article.urlToImage }}"
+                                        alt="{{ article.title }}"
+                                        loading="lazy"
+                                        onerror="
+                                            this.style.display='none';
+                                            this.parentElement.classList.add('no-image');
+                                        "
+                                    >
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="stack-body">
+
+                                <span class="stack-source">
+
+                                    {{ article.source.name }}
+
+                                    •
+
+                                    {{ article.time_ago }}
+
+                                </span>
+
+
+                                <h3>
+
+                                    <a
+                                        href="{{ article.url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {{ article.title }}
+                                    </a>
+
+                                </h3>
+
+                            </div>
+
+
+                        </article>
+
                     {% endfor %}
+
+
                 </div>
 
-                <!-- Infinite Scroll Sentinel & Load More Trigger -->
-                <div id="infinite-scroll-sentinel" data-next-page="{% if articles.has_next %}{{ articles.next_page_number }}{% endif %}" data-category="{{ category }}" data-query="{{ q }}">
-                    {% if articles.has_next %}
-                        <button id="load-more-btn" type="button" class="load-more-button">⚡ Load More Stories</button>
-                    {% endif %}
-                </div>
 
-                <!-- Pagination -->
-                {% if articles.paginator.num_pages > 1 %}
-                <nav class="pagination" aria-label="Pagination">
-                    {% if articles.has_previous %}
-                        <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.previous_page_number }}">← Prev</a>
-                    {% endif %}
-                    {% for number in articles.paginator.page_range %}
-                        {% if number == articles.number %}
-                            <span aria-current="page">{{ number }}</span>
-                        {% elif number >= articles.number|add:"-2" and number <= articles.number|add:"2" %}
-                            <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ number }}">{{ number }}</a>
-                        {% endif %}
-                    {% endfor %}
-                    {% if articles.has_next %}
-                        <a href="?q={{ q|urlencode }}&category={{ category }}&page={{ articles.next_page_number }}">Next →</a>
-                    {% endif %}
-                </nav>
-                {% endif %}
             </section>
 
-            <!-- Right Column: Industry Sidebar Widgets -->
-            <aside class="sidebar">
-                <!-- Trending Stories Widget -->
-                <div class="sidebar-widget trending-widget">
-                    <div class="widget-header">
-                        <span class="widget-icon">🔥</span>
-                        <h3>Trending Ranking</h3>
-                    </div>
-                    <ol class="trending-list">
-                        {% for article in trending_articles %}
-                        <li>
-                            <span class="rank-number">0{{ forloop.counter }}</span>
-                            <div class="trending-info">
-                                <p class="trending-meta">{{ article.source.name }} • {{ article.time_ago }}</p>
-                                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a>
-                            </div>
-                        </li>
-                        {% empty %}
-                        <li>Updating trending feed...</li>
-                        {% endfor %}
-                    </ol>
-                </div>
+        {% endif %}
 
-                <!-- Quick Stats & Activity Box -->
-                <div class="sidebar-widget stats-widget">
-                    <div class="widget-header">
-                        <span class="widget-icon">⚡</span>
-                        <h3>Your Activity Digest</h3>
-                    </div>
-                    <div class="widget-stats-grid">
-                        <div class="stat-box">
-                            <strong>{{ total_saved }}</strong>
-                            <span>Bookmarks</span>
-                        </div>
-                        <div class="stat-box">
-                            <strong>{{ total_searches }}</strong>
-                            <span>Searches</span>
-                        </div>
-                    </div>
-                    <div class="top-keyword-pill">
-                        <span>Top Search:</span>
-                        <strong>{{ top_keyword }}</strong>
-                    </div>
-                </div>
 
-                <!-- Newsletter Digest Subscription Box -->
-                <div class="sidebar-widget newsletter-widget">
-                    <span class="newsletter-badge">DAILY DIGEST</span>
-                    <h3>Stay Informed Daily</h3>
-                    <p>Get top morning headlines delivered directly to your dashboard inbox.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to daily news digest!');">
-                        <input type="email" placeholder="Enter your email address" required>
-                        <button type="submit">Subscribe</button>
-                    </form>
-                </div>
-            </aside>
+
+        <!-- =================================================
+             FILTERS
+        ================================================== -->
+
+        <div class="filter-bar">
+
+
+            <!-- Region -->
+
+            <nav
+                class="region-selector"
+                aria-label="Region filter"
+            >
+
+                <span class="filter-heading">
+                    Region
+                </span>
+
+
+                {% for c_key, c_label in countries.items %}
+
+                    <a
+                        href="?country={{ c_key }}&category={{ category }}{% if q %}&q={{ q|urlencode }}{% endif %}"
+                        class="country-pill {% if country == c_key %}active{% endif %}"
+                    >
+                        {{ c_label }}
+                    </a>
+
+                {% endfor %}
+
+
+            </nav>
+
+
+
+            <!-- Categories -->
+
+            <nav
+                class="categories"
+                aria-label="News categories"
+            >
+
+
+                {% for key, label in categories.items %}
+
+                    <a
+                        href="?category={{ key }}&country={{ country }}{% if q %}&q={{ q|urlencode }}{% endif %}"
+                        class="{% if category == key and not q %}active{% endif %}"
+                    >
+                        {{ label }}
+                    </a>
+
+                {% endfor %}
+
+
+            </nav>
+
+
         </div>
+
+
+
+        <!-- =================================================
+             RECENT SEARCHES
+        ================================================== -->
+
+        {% if recent_searches %}
+
+            <div class="recent-searches">
+
+                <span class="recent-title">
+                    Recent searches
+                </span>
+
+
+                {% for term in recent_searches %}
+
+                    <a
+                        href="?q={{ term|urlencode }}&category={{ category }}&country={{ country }}"
+                    >
+                        {{ term }}
+                    </a>
+
+                {% endfor %}
+
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             CONTENT GRID
+        ================================================== -->
+
+        <div class="content-grid">
+
+
+
+            <!-- =================================================
+                 ARTICLES
+            ================================================== -->
+
+            <section class="feed-section">
+
+
+                <div class="section-heading">
+
+
+                    <div>
+
+                        <p class="eyebrow">
+                            NEWS FEED • {{ country|upper }}
+                        </p>
+
+
+                        <h2>
+
+                            {% if q %}
+
+                                Results for "{{ q }}"
+
+                            {% else %}
+
+                                {{ category|title }} Stories
+
+                            {% endif %}
+
+                        </h2>
+
+                    </div>
+
+
+                    <span class="page-count">
+
+                        Page
+                        {{ articles.number }}
+                        of
+                        {{ articles.paginator.num_pages }}
+
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- Article Grid -->
+
+                <div class="article-grid">
+
+
+                    {% for article in articles %}
+
+                        <article class="article-card">
+
+
+                            <!-- Image -->
+
+                            <div
+                                class="
+                                    card-media
+                                    {% if not article.urlToImage %}
+                                        no-image
+                                    {% endif %}
+                                "
+                            >
+
+
+                                <span class="source-badge">
+                                    {{ article.source.name }}
+                                </span>
+
+
+                                {% if article.urlToImage %}
+
+                                    <img
+                                        src="{{ article.urlToImage }}"
+                                        alt="{{ article.title }}"
+                                        loading="lazy"
+                                        onerror="
+                                            this.style.display='none';
+                                            this.parentElement.classList.add('no-image');
+                                        "
+                                    >
+
+                                {% endif %}
+
+
+                            </div>
+
+
+
+                            <!-- Card Body -->
+
+                            <div class="card-body">
+
+
+                                <div class="article-meta">
+
+                                    <span>
+                                        {{ article.estimated_reading_time }}
+                                    </span>
+
+                                    <time>
+                                        {{ article.time_ago }}
+                                    </time>
+
+                                </div>
+
+
+
+                                <h3>
+
+                                    <a
+                                        href="{{ article.url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {{ article.title }}
+                                    </a>
+
+                                </h3>
+
+
+
+                                <p>
+
+                                    {{ article.description|default:"Click below to open the complete coverage from the original source." }}
+
+                                </p>
+
+
+
+                                <div class="card-actions">
+
+
+                                    <button
+                                        class="bookmark-button"
+                                        type="button"
+                                        data-title="{{ article.title }}"
+                                        data-url="{{ article.url }}"
+                                        data-image="{{ article.urlToImage }}"
+                                    >
+                                        Save
+                                    </button>
+
+
+                                    <a
+                                        class="read-link"
+                                        href="{{ article.url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Read Story →
+                                    </a>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </article>
+
+
+                    {% empty %}
+
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">
+                                Search
+                            </div>
+
+                            <h3>
+                                No articles found
+                            </h3>
+
+                            <p>
+                                Try another search or explore a different category.
+                            </p>
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     INFINITE SCROLL
+                ================================================== -->
+
+                <div
+                    id="infinite-scroll-sentinel"
+                    data-next-page="{% if articles.has_next %}{{ articles.next_page_number }}{% endif %}"
+                    data-category="{{ category }}"
+                    data-country="{{ country }}"
+                    data-query="{{ q }}"
+                >
+
+
+                    {% if articles.has_next %}
+
+                        <div
+                            class="infinite-loader"
+                            id="infinite-loader"
+                        >
+
+                            <span class="spinner"></span>
+
+                            <span class="loading-text">
+                                Loading more stories...
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            id="load-more-btn"
+                            type="button"
+                            class="load-more-button"
+                            style="display: none;"
+                        >
+                            Load More Stories
+                        </button>
+
+                    {% endif %}
+
+
+                </div>
+
+
+
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RIGHT SIDEBAR
+            ================================================== -->
+
+            <aside class="sidebar">
+
+
+
+                <!-- Trending -->
+
+                <div class="sidebar-widget trending-widget">
+
+
+                    <div class="widget-header">
+
+                        <span class="widget-icon">
+                            Trending
+                        </span>
+
+                        <h3>
+                            Trending Stories
+                        </h3>
+
+                    </div>
+
+
+
+                    <ol class="trending-list">
+
+
+                        {% for article in trending_articles %}
+
+                            <li>
+
+
+                                <span class="rank-number">
+                                    {{ forloop.counter|stringformat:"02d" }}
+                                </span>
+
+
+                                <div class="trending-info">
+
+
+                                    <p class="trending-meta">
+
+                                        {{ article.source.name }}
+
+                                        •
+
+                                        {{ article.time_ago }}
+
+                                    </p>
+
+
+                                    <a
+                                        href="{{ article.url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {{ article.title }}
+                                    </a>
+
+
+                                </div>
+
+
+                            </li>
+
+
+                        {% empty %}
+
+                            <li>
+                                Updating trending stories...
+                            </li>
+
+                        {% endfor %}
+
+
+                    </ol>
+
+
+                </div>
+
+
+
+                <!-- Activity -->
+
+                <div class="sidebar-widget stats-widget">
+
+
+                    <div class="widget-header">
+
+                        <span class="widget-icon">
+                            Activity
+                        </span>
+
+                        <h3>
+                            Your Activity
+                        </h3>
+
+                    </div>
+
+
+
+                    <div class="widget-stats-grid">
+
+
+                        <div class="stat-box">
+
+                            <strong>
+                                {{ total_saved }}
+                            </strong>
+
+                            <span>
+                                Bookmarks
+                            </span>
+
+                        </div>
+
+
+                        <div class="stat-box">
+
+                            <strong>
+                                {{ total_searches }}
+                            </strong>
+
+                            <span>
+                                Searches
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="top-keyword-pill">
+
+                        <span>
+                            Top search
+                        </span>
+
+                        <strong>
+                            {{ top_keyword }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- Daily Briefing -->
+
+                <div class="sidebar-widget newsletter-widget">
+
+
+                    <span class="newsletter-badge">
+                        DAILY BRIEFING
+                    </span>
+
+
+                    <h3>
+                        Stay informed.
+                    </h3>
+
+
+                    <p>
+                        Get the latest headlines and important
+                        stories in one place.
+                    </p>
+
+
+                    <form
+                        class="newsletter-form"
+                        onsubmit="
+                            event.preventDefault();
+                            alert('Subscribed to daily news digest!');
+                        "
+                    >
+
+                        <input
+                            type="email"
+                            placeholder="Your email address"
+                            required
+                        >
+
+
+                        <button type="submit">
+                            Subscribe
+                        </button>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+
     </main>
 
-    <!-- Toast Notification Popup -->
-    <div id="toast" role="status" aria-live="polite"></div>
-    <script src="{% static 'newsapp/dashboard.js' %}?v=10.0" defer></script>
+
+
+    <!-- =====================================================
+         NEWS READER MODAL
+    ====================================================== -->
+
+    <div
+        id="reader-modal"
+        class="reader-modal-overlay"
+        aria-hidden="true"
+        role="dialog"
+        aria-labelledby="modal-title"
+    >
+
+
+        <div class="reader-modal-content">
+
+
+            <button
+                id="close-reader-modal"
+                type="button"
+                class="reader-close-btn"
+                aria-label="Close article preview"
+            >
+                ×
+            </button>
+
+
+
+            <div class="reader-modal-header">
+
+
+                <span
+                    id="modal-source"
+                    class="reader-source-badge"
+                >
+                    Global Feed
+                </span>
+
+
+                <span
+                    id="modal-reading-time"
+                    class="reader-meta"
+                >
+                    3 min read
+                </span>
+
+
+                <time
+                    id="modal-time-ago"
+                    class="reader-meta"
+                >
+                    Recently
+                </time>
+
+
+            </div>
+
+
+
+            <h2
+                id="modal-title"
+                class="reader-title"
+            >
+                Article Title
+            </h2>
+
+
+
+            <div
+                id="modal-media-wrap"
+                class="reader-media"
+            >
+
+                <img
+                    id="modal-image"
+                    src=""
+                    alt=""
+                    loading="lazy"
+                >
+
+            </div>
+
+
+
+            <p
+                id="modal-description"
+                class="reader-description"
+            >
+                Article summary content goes here...
+            </p>
+
+
+
+            <div
+                id="modal-paragraphs"
+                class="reader-paragraphs"
+            ></div>
+
+
+
+            <div class="reader-modal-footer">
+
+
+                <button
+                    id="modal-bookmark-btn"
+                    type="button"
+                    class="bookmark-button"
+                >
+                    Save Story
+                </button>
+
+
+                <a
+                    id="modal-source-link"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="read-full-source-btn"
+                >
+                    Original Source ↗
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+
+
+    <!-- =====================================================
+         DASHBOARD JS
+    ====================================================== -->
+
+    <script src="{% static 'newsapp/dashboard.js' %}?v=15.0" defer></script>
+
+
 </body>
+
 </html>

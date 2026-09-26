@@ -17,6 +17,46 @@
         progressBar.style.width = `${progress}%`;
     });
 
+    // Live Date Display
+    const dateEl = document.getElementById("live-date");
+    if (dateEl) {
+        const now = new Date();
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        dateEl.textContent = `📅 ${now.toLocaleDateString('en-US', options).toUpperCase()}`;
+    }
+
+    // Live Weather via Open-Meteo API
+    const weatherEl = document.getElementById("live-weather");
+    if (weatherEl) {
+        async function fetchWeather(lat, lon, cityName = "Local") {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                if (!res.ok) throw new Error("Weather fetch failed");
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const code = data.current_weather.weathercode;
+                let icon = "🌤️";
+                if (code === 0) icon = "☀️";
+                else if (code >= 1 && code <= 3) icon = "⛅";
+                else if (code >= 51 && code <= 67) icon = "🌧️";
+                else if (code >= 71) icon = "❄️";
+                else if (code >= 95) icon = "🌩️";
+                weatherEl.textContent = `${icon} ${temp}°C ${cityName}`;
+            } catch (err) {
+                weatherEl.textContent = "🌤️ 24°C Global";
+            }
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "Local"),
+                () => fetchWeather(40.7128, -74.0060, "New York")
+            );
+        } else {
+            fetchWeather(40.7128, -74.0060, "New York");
+        }
+    }
+
     // Theme Management
     function setTheme(theme) {
         root.dataset.theme = theme;
@@ -108,14 +148,15 @@
 
             for (let j = index + 1; j < particles.length; j++) {
                 const p2 = particles[j];
-                const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                if (dist < 120) {
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 110) {
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p2.x, p2.y);
                     ctx.strokeStyle = p.color;
-                    ctx.globalAlpha = (1 - dist / 120) * 0.2;
-                    ctx.lineWidth = 0.6;
+                    ctx.globalAlpha = (1 - dist / 110) * 0.25;
                     ctx.stroke();
                     ctx.globalAlpha = 1;
                 }
@@ -125,123 +166,203 @@
     }
     renderParticles();
 
-    // Mouse Parallax Physics for Ambient Orbs
-    const bubbles = document.querySelectorAll(".ambient-bubbles .bubble");
-    if (bubbles.length > 0) {
-        let mouseX = 0;
-        let mouseY = 0;
-        let currentX = 0;
-        let currentY = 0;
+    // Bookmark Interaction Handling
+    function initBookmarkButton(btn) {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const title = btn.dataset.title;
+            const url = btn.dataset.url;
+            const image = btn.dataset.image || "";
 
-        window.addEventListener("mousemove", (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) * 0.04;
-            mouseY = (e.clientY - window.innerHeight / 2) * 0.04;
-        });
+            if (!url) return;
 
-        function animateParallax() {
-            currentX += (mouseX - currentX) * 0.08;
-            currentY += (mouseY - currentY) * 0.08;
-
-            bubbles.forEach((bubble, index) => {
-                const factor = (index + 1) * 0.4;
-                bubble.style.transform = `translate(${currentX * factor}px, ${currentY * factor}px)`;
-            });
-
-            requestAnimationFrame(animateParallax);
-        }
-
-        animateParallax();
-    }
-
-    // 3D Tilt Micro-Interactions on Article Cards
-    function initCardTilt(card) {
-        card.addEventListener("mousemove", (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            card.style.transform = `perspective(1000px) rotateX(${(-y / rect.height) * 8}deg) rotateY(${(x / rect.width) * 8}deg) translateY(-6px)`;
-        });
-
-        card.addEventListener("mouseleave", () => {
-            card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
-        });
-    }
-
-    document.querySelectorAll(".article-card, .stack-card").forEach(initCardTilt);
-
-    // Floating Back-To-Top Button
-    const topButton = document.createElement("button");
-    topButton.id = "back-to-top";
-    topButton.type = "button";
-    topButton.innerHTML = "↑";
-    topButton.setAttribute("aria-label", "Scroll back to top");
-    document.body.appendChild(topButton);
-
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 350) {
-            topButton.classList.add("visible");
-        } else {
-            topButton.classList.remove("visible");
-        }
-    });
-
-    topButton.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Bookmark Button Event Binding
-    function initBookmarkButton(button) {
-        button.addEventListener("click", async () => {
-            const token = getCsrfToken();
-            const body = new URLSearchParams({
-                title: button.dataset.title || "",
-                url: button.dataset.url || "",
-                image: button.dataset.image || "",
-            });
+            btn.disabled = true;
+            const origText = btn.innerHTML;
+            btn.innerHTML = "⌛ Saving...";
 
             try {
+                const formData = new FormData();
+                formData.append("title", title);
+                formData.append("url", url);
+                formData.append("image", image);
+
                 const response = await fetch("/save/", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "X-CSRFToken": token,
+                        "X-CSRFToken": getCsrfToken(),
+                        "X-Requested-With": "XMLHttpRequest"
                     },
-                    body,
+                    body: formData
                 });
+
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Unable to bookmark article");
-                button.classList.add("saved");
-                button.textContent = "💖 Bookmarked";
-                showToast(data.status === "exists" ? "Article is already in your bookmarks!" : "Article saved to bookmarks!");
-            } catch (error) {
-                showToast(error.message, true);
+                if (response.ok && (data.status === "saved" || data.status === "exists")) {
+                    btn.innerHTML = "✅ Bookmarked";
+                    btn.classList.add("saved");
+                    showToast(data.status === "saved" ? "Article saved to bookmarks!" : "Article already in bookmarks");
+                    const countEl = document.querySelector(".bookmark-link .count");
+                    if (countEl && data.status === "saved") {
+                        countEl.textContent = parseInt(countEl.textContent || "0", 10) + 1;
+                    }
+                } else {
+                    throw new Error(data.message || "Failed to save article");
+                }
+            } catch (err) {
+                btn.innerHTML = origText;
+                btn.disabled = false;
+                showToast(err.message || "Could not save bookmark", true);
             }
         });
     }
 
     document.querySelectorAll(".bookmark-button").forEach(initBookmarkButton);
 
-    // Infinite Scroll / Dynamic Load More Handler
-    const sentinel = document.getElementById("infinite-scroll-sentinel");
-    const loadMoreBtn = document.getElementById("load-more-btn");
-    const articleGrid = document.querySelector(".article-grid");
+    // In-App News Reader Modal Handler
+    const readerModal = document.getElementById("reader-modal");
+    const closeReaderBtn = document.getElementById("close-reader-modal");
+    const modalSource = document.getElementById("modal-source");
+    const modalReadingTime = document.getElementById("modal-reading-time");
+    const modalTimeAgo = document.getElementById("modal-time-ago");
+    const modalTitle = document.getElementById("modal-title");
+    const modalMediaWrap = document.getElementById("modal-media-wrap");
+    const modalImage = document.getElementById("modal-image");
+    const modalDescription = document.getElementById("modal-description");
+    const modalBookmarkBtn = document.getElementById("modal-bookmark-btn");
+    const modalSourceLink = document.getElementById("modal-source-link");
 
-    if (sentinel && articleGrid) {
+    const modalParagraphs = document.getElementById("modal-paragraphs");
+
+    async function openReaderModal(articleData) {
+        if (!readerModal) return;
+        if (modalSource) modalSource.textContent = articleData.source || "Global Feed";
+        if (modalReadingTime) modalReadingTime.textContent = articleData.readingTime ? `⏱️ ${articleData.readingTime}` : '⏱️ 3 min read';
+        if (modalTimeAgo) modalTimeAgo.textContent = articleData.timeAgo || 'Recently';
+        if (modalTitle) modalTitle.textContent = articleData.title || "Untitled Article";
+        if (modalDescription) modalDescription.textContent = articleData.description || "";
+
+        if (modalImage && modalMediaWrap) {
+            if (articleData.image) {
+                modalImage.src = articleData.image;
+                modalMediaWrap.style.display = "block";
+            } else {
+                modalMediaWrap.style.display = "none";
+            }
+        }
+
+        if (modalSourceLink) modalSourceLink.href = articleData.url || "#";
+
+        if (modalParagraphs) {
+            modalParagraphs.innerHTML = `<p class="extracting-indicator">⚡ <i>Extracting full article content from original source...</i></p>`;
+        }
+
+        if (modalBookmarkBtn) {
+            modalBookmarkBtn.dataset.title = articleData.title || "";
+            modalBookmarkBtn.dataset.url = articleData.url || "";
+            modalBookmarkBtn.dataset.image = articleData.image || "";
+            modalBookmarkBtn.classList.remove("saved");
+            modalBookmarkBtn.innerHTML = "❤️ Bookmark Story";
+            const newBtn = modalBookmarkBtn.cloneNode(true);
+            modalBookmarkBtn.parentNode.replaceChild(newBtn, modalBookmarkBtn);
+            initBookmarkButton(newBtn);
+        }
+
+        readerModal.classList.add("active");
+        readerModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+
+        if (articleData.url) {
+            try {
+                const res = await fetch(`/article/extract/?url=${encodeURIComponent(articleData.url)}`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+                const data = await res.json();
+                if (data.status === "success" && data.article && data.article.paragraphs && data.article.paragraphs.length > 0) {
+                    if (modalParagraphs) {
+                        modalParagraphs.innerHTML = data.article.paragraphs.map(p => `<p>${p}</p>`).join("");
+                    }
+                    if (data.article.reading_time && modalReadingTime) {
+                        modalReadingTime.textContent = `⏱️ ${data.article.reading_time}`;
+                    }
+                    if (data.article.lead_image && modalImage && modalMediaWrap) {
+                        modalImage.src = data.article.lead_image;
+                        modalMediaWrap.style.display = "block";
+                    }
+                } else {
+                    if (modalParagraphs) {
+                        modalParagraphs.innerHTML = `<p class="extracting-fallback"><i>Full story text extraction is limited by publisher paywall. Click below to read on original site.</i></p>`;
+                    }
+                }
+            } catch (err) {
+                if (modalParagraphs) {
+                    modalParagraphs.innerHTML = `<p class="extracting-fallback"><i>Full story text extraction is limited by publisher paywall. Click below to read on original site.</i></p>`;
+                }
+            }
+        }
+    }
+
+    function closeReaderModal() {
+        if (!readerModal) return;
+        readerModal.classList.remove("active");
+        readerModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+    }
+
+    if (closeReaderBtn) closeReaderBtn.addEventListener("click", closeReaderModal);
+    if (readerModal) {
+        readerModal.addEventListener("click", (e) => {
+            if (e.target === readerModal) closeReaderModal();
+        });
+    }
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && readerModal && readerModal.classList.contains("active")) {
+            closeReaderModal();
+        }
+    });
+
+
+
+    // Infinite Scroll Sentinel & Load More Handler
+    const sentinel = document.getElementById("infinite-scroll-sentinel");
+    if (sentinel) {
+        const articleGrid = document.querySelector(".article-grid");
+        const loadMoreBtn = document.getElementById("load-more-btn");
+        const loader = document.getElementById("infinite-loader");
         let isLoading = false;
+        let lastCategory = "";
+
+        function createSkeletonCards() {
+            const skeletons = [];
+            for (let i = 0; i < 3; i++) {
+                const card = document.createElement("article");
+                card.className = "skeleton-card";
+                card.innerHTML = `
+                    <div class="skeleton-media"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line skeleton-title"></div>
+                        <div class="skeleton-line skeleton-text-1"></div>
+                        <div class="skeleton-line skeleton-text-2"></div>
+                    </div>
+                `;
+                skeletons.push(card);
+            }
+            return skeletons;
+        }
 
         async function loadMoreArticles() {
             const nextPage = sentinel.dataset.nextPage;
             if (!nextPage || isLoading) return;
 
             isLoading = true;
-            if (loadMoreBtn) {
-                loadMoreBtn.classList.add("loading");
-                loadMoreBtn.textContent = "⌛ Loading more stories...";
-            }
+            if (loader) loader.style.display = "flex";
+
+            const skeletons = createSkeletonCards();
+            skeletons.forEach(s => articleGrid.appendChild(s));
 
             const category = sentinel.dataset.category || "general";
+            const country = sentinel.dataset.country || "world";
             const query = sentinel.dataset.query || "";
-            const fetchUrl = `/?category=${encodeURIComponent(category)}&q=${encodeURIComponent(query)}&page=${nextPage}&format=json`;
+            const fetchUrl = `/?category=${encodeURIComponent(category)}&country=${encodeURIComponent(country)}&q=${encodeURIComponent(query)}&page=${nextPage}&format=json`;
 
             try {
                 const response = await fetch(fetchUrl, {
@@ -249,13 +370,31 @@
                 });
                 const data = await response.json();
 
-                if (data.status === "success" && data.articles) {
+                skeletons.forEach(s => s.remove());
+
+                if (data.status === "success" && data.articles && data.articles.length > 0) {
+                    if (data.category_name && lastCategory !== data.category_name) {
+                        lastCategory = data.category_name;
+                        const divider = document.createElement("div");
+                        divider.className = "stream-section-divider";
+                        divider.innerHTML = `<span>${data.category_name} Stream</span>`;
+                        articleGrid.appendChild(divider);
+                    }
+
                     data.articles.forEach(article => {
+                        let badgeClass = "";
+                        const catLower = (lastCategory || "").toLowerCase();
+                        if (catLower.includes("tech")) badgeClass = "badge-tech";
+                        else if (catLower.includes("business")) badgeClass = "badge-business";
+                        else if (catLower.includes("world")) badgeClass = "badge-world";
+                        else if (catLower.includes("science")) badgeClass = "badge-science";
+                        else if (catLower.includes("sports")) badgeClass = "badge-sports";
+
                         const card = document.createElement("article");
                         card.className = "article-card";
                         card.innerHTML = `
                             <div class="card-media ${!article.urlToImage ? 'no-image' : ''}">
-                                <span class="source-badge">${article.source ? article.source.name : 'Global Feed'}</span>
+                                <span class="source-badge ${badgeClass}">${article.source ? article.source.name : 'Global Feed'}</span>
                                 ${article.urlToImage ? `<img src="${article.urlToImage}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">` : ''}
                             </div>
                             <div class="card-body">
@@ -271,31 +410,21 @@
                                 </div>
                             </div>
                         `;
-                        initCardTilt(card);
                         const bBtn = card.querySelector(".bookmark-button");
                         if (bBtn) initBookmarkButton(bBtn);
                         articleGrid.appendChild(card);
                     });
 
-                    if (data.has_next) {
-                        sentinel.dataset.nextPage = data.next_page;
-                        if (loadMoreBtn) {
-                            loadMoreBtn.classList.remove("loading");
-                            loadMoreBtn.textContent = "⚡ Load More Stories";
-                        }
-                    } else {
-                        sentinel.dataset.nextPage = "";
-                        if (loadMoreBtn) loadMoreBtn.remove();
-                    }
+                    sentinel.dataset.nextPage = data.next_page || (parseInt(nextPage, 10) + 1);
                 }
             } catch (err) {
+                skeletons.forEach(s => s.remove());
                 showToast("Failed to load more stories", true);
-                if (loadMoreBtn) {
-                    loadMoreBtn.classList.remove("loading");
-                    loadMoreBtn.textContent = "⚡ Load More Stories";
-                }
             } finally {
                 isLoading = false;
+                if (!sentinel.dataset.nextPage && loader) {
+                    loader.style.display = "none";
+                }
             }
         }
 
@@ -303,10 +432,23 @@
             loadMoreBtn.addEventListener("click", loadMoreArticles);
         }
 
-        window.addEventListener("scroll", () => {
-            if (sentinel.dataset.nextPage && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600) {
-                loadMoreArticles();
-            }
-        });
+        if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && sentinel.dataset.nextPage && !isLoading) {
+                        loadMoreArticles();
+                    }
+                });
+            }, {
+                rootMargin: "350px 0px"
+            });
+            observer.observe(sentinel);
+        } else {
+            window.addEventListener("scroll", () => {
+                if (sentinel.dataset.nextPage && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600) {
+                    loadMoreArticles();
+                }
+            });
+        }
     }
 })();

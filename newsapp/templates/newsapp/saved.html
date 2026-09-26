@@ -2,40 +2,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>NewsWire | Saved Reading List</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'newsapp/css/pages.css' %}?v=10.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<title>NewsWire | Saved Reading List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.documentElement.dataset.theme=localStorage.getItem('news_theme')||'dark';</script>
+<link rel="stylesheet" href="{% static 'newsapp/css/dashboard.css' %}?v=12.0">
+<style>
+/* =========================================================
+   ANALYTICS + BOOKMARKS — HOMEPAGE UI SYSTEM
+   ========================================================= */
+.page-page {
+    width: min(1440px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 38px 0 70px;
+}
+.page-hero {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+    margin-bottom:24px;
+    padding:26px 28px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+}
+.page-hero h1 { margin:0 0 6px; font-size:34px; line-height:1.1; }
+.page-hero p { margin:0; color:var(--muted); font-size:13px; }
+.page-hero .eyebrow { margin:0 0 7px; color:var(--accent-glow); font-size:10px; font-weight:900; letter-spacing:.12em; }
+.dashboard-panel {
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+}
+.dashboard-panel-head { padding:22px 24px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.dashboard-panel-head h2 { margin:0; font-size:20px; }
+.dashboard-panel-body { padding:24px; }
+.stat-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-bottom:18px; }
+.stat-card { padding:22px 24px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+.stat-card .stat-label { color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+.stat-card strong { display:block; margin-top:8px; color:var(--accent-glow); font-family:'Plus Jakarta Sans',sans-serif; font-size:38px; font-weight:900; }
+.data-row { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:15px 0; border-top:1px solid var(--line); color:var(--text); font-size:13px; font-weight:600; }
+.data-row:first-child { border-top:0; }
+.data-row strong { color:var(--accent-glow); }
+.page-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.page-actions .button { border-radius:12px; }
+.bookmark-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.bookmark-card { overflow:hidden; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); transition:.25s ease; }
+.bookmark-card:hover { transform:translateY(-4px); border-color:var(--accent-glow); box-shadow:0 14px 30px rgba(79,70,229,.12); }
+.bookmark-card .card-media { aspect-ratio:16/9; background:var(--surface-2); }
+.bookmark-card .card-media img { width:100%; height:100%; object-fit:cover; }
+.bookmark-card .card-body { padding:20px; display:flex; flex:1; flex-direction:column; }
+.bookmark-card h2 { margin:8px 0 18px; font-size:19px; line-height:1.35; }
+.bookmark-card .card-meta { color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; }
+.bookmark-card .card-actions { display:flex; justify-content:space-between; gap:10px; margin-top:auto; padding-top:16px; border-top:1px solid var(--line); }
+.bookmark-card .card-actions .button { padding:9px 12px; font-size:11px; }
+.empty-state { padding:55px 24px; text-align:center; background:var(--surface); border:1px dashed var(--line); border-radius:16px; }
+.empty-state h2 { margin:0 0 8px; }
+.empty-state p { margin:0; color:var(--muted); }
+.pagination { display:flex; justify-content:center; gap:8px; margin-top:24px; }
+.pagination a,.pagination span { padding:10px 14px; background:var(--surface); border:1px solid var(--line); border-radius:10px; font-size:12px; font-weight:800; }
+.pagination span { color:#fff; background:var(--accent); border-color:var(--accent); }
+@media(max-width:900px){ .bookmark-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:700px){ .page-page{width:min(100% - 28px,1440px);padding-top:24px}.page-hero{padding:20px;align-items:flex-start;flex-direction:column}.stat-grid{grid-template-columns:1fr}.bookmark-grid{grid-template-columns:1fr}.page-hero h1{font-size:29px} }
+</style>
 </head>
 <body>
-    <!-- Ambient Floating Background Orbs -->
-    <div class="ambient-bubbles" aria-hidden="true">
-        <div class="bubble bubble-1"></div>
-        <div class="bubble bubble-2"></div>
-        <div class="bubble bubble-3"></div>
+    <!-- Editorial Top utility bar -->
+    <div class="utility-bar">
+        <div class="utility-container">
+            <div class="utility-left">
+                <span id="live-date" class="live-date">📅 Updating date...</span>
+                <span class="utility-divider">•</span>
+                <span id="live-weather" class="weather-widget">🌤️ Loading local weather...</span>
+            </div>
+            <div class="utility-right">
+                <span class="market-pulse">📈 S&amp;P 500 +0.42%</span>
+                <span class="utility-divider">•</span>
+                <span class="market-pulse">NASDAQ +0.85%</span>
+            </div>
+        </div>
     </div>
 
-    <div id="toast-container" role="status" aria-live="polite"></div>
+    <!-- Main Editorial Glass Header -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="{% url 'home' %}">
+                <span class="brand-icon">⚡</span>
+                <span class="brand-text">NEWS<span>WIRE</span></span>
+                <span class="brand-badge">EDITORIAL</span>
+            </a>
 
-    <header class="site-header">
-        <a class="brand" href="{% url 'home' %}">⚡ NEWS<span>WIRE</span></a>
-        <a class="button" href="{% url 'home' %}">← Back to Dashboard</a>
+            <form class="search-form" method="get" action="{% url 'home' %}">
+                <input type="hidden" name="category" value="{{ category }}">
+                <input type="hidden" name="country" value="{{ country }}">
+                <label class="sr-only" for="search-input">Search news</label>
+                <input id="search-input" name="q" value="{{ q }}" maxlength="100" placeholder="Search global news, companies, or topics...">
+                <span class="search-shortcut">⌘K</span>
+                <button type="submit">Search</button>
+            </form>
+
+            <nav class="top-actions" aria-label="Account navigation">
+                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌙 Theme</button>
+                <a href="{% url 'saved_articles' %}" class="bookmark-link">
+                    🔖 Bookmarks <span class="count">{{ total_saved }}</span>
+                </a>
+                <a href="{% url 'profile' %}" class="profile-link">📊 Analytics</a>
+                <form class="logout-form" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Sign Out</button>
+                </form>
+            </nav>
+        </div>
     </header>
 
-    <main class="page">
-        <div class="page-heading">
+
+<main class="page-page">
+
+        <div class="page-hero">
             <h1>Saved Bookmarks</h1>
             <p>Personal reading list for @{{ request.user.username }}</p>
         </div>
 
-        <div class="cards">
+        <div class="bookmark-grid">
             {% for item in saved_news %}
-            <article class="card" id="bookmark-card-{{ item.id }}">
+            <article class="bookmark-card" id="bookmark-card-{{ item.id }}">
                 <div class="card-media {% if not item.image %}no-image{% endif %}">
                     {% if item.image %}
                         <img src="{{ item.image }}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
@@ -51,7 +149,7 @@
                 </div>
             </article>
             {% empty %}
-            <div class="empty">
+            <div class="empty-state">
                 <h2>No Bookmarks Saved Yet</h2>
                 <p class="muted">Explore stories on the home feed and click Bookmark to save articles here for later reading.</p>
             </div>
@@ -69,8 +167,9 @@
             {% endif %}
         </nav>
         {% endif %}
-    </main>
-
-    <script src="{% static 'newsapp/saved.js' %}?v=10.0" defer></script>
+    
+</main>
+<script src="{% static 'newsapp/dashboard.js' %}?v=12.0" defer></script>
+<script src="{% static 'newsapp/saved.js' %}?v=12.0" defer></script>
 </body>
 </html>
