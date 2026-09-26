@@ -14,7 +14,6 @@ from django.contrib.auth.decorators import login_required
 from .forms import EmailRegistrationForm, EmailLoginForm
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import URLValidator
 from django.db.models import Count
@@ -1271,25 +1270,80 @@ def send_password_reset_otp(user):
         otp=otp,
     )
 
-    send_mail(
-        subject="NewsWire Password Reset OTP",
+    # Brevo transactional email API
+    brevo_api_key = os.getenv("BREVO_API_KEY")
+    brevo_sender_email = os.getenv("BREVO_SENDER_EMAIL")
+    brevo_sender_name = os.getenv(
+        "BREVO_SENDER_NAME",
+        "NewsWire",
+    )
 
-        message=(
-            f"Your NewsWire password reset OTP is: "
-            f"{otp}\n\n"
+    if not brevo_api_key:
+        logger.error(
+            "BREVO_API_KEY is not configured."
+        )
+        raise RuntimeError(
+            "BREVO_API_KEY must be configured "
+            "to send password reset emails."
+        )
+
+    if not brevo_sender_email:
+        logger.error(
+            "BREVO_SENDER_EMAIL is not configured."
+        )
+        raise RuntimeError(
+            "BREVO_SENDER_EMAIL must be configured "
+            "to send password reset emails."
+        )
+
+    email_payload = {
+        "sender": {
+            "name": brevo_sender_name,
+            "email": brevo_sender_email,
+        },
+        "to": [
+            {
+                "email": user.email,
+            }
+        ],
+        "subject": "NewsWire Password Reset OTP",
+        "textContent": (
+            f"Your NewsWire password reset OTP is: {otp}\n\n"
             "This OTP is valid for 5 minutes.\n\n"
             "If you did not request a password reset, "
             "please ignore this email."
         ),
+    }
 
-        from_email=None,
+    try:
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json",
+            },
+            json=email_payload,
+            timeout=10,
+        )
 
-        recipient_list=[
-            user.email
-        ],
+        response.raise_for_status()
 
-        fail_silently=False,
-    )
+        logger.info(
+            "Password reset OTP email sent to %s",
+            user.email,
+        )
+
+    except requests.RequestException as exc:
+        logger.exception(
+            "Brevo failed to send password reset OTP "
+            "to %s: %s",
+            user.email,
+            exc,
+        )
+        raise RuntimeError(
+            "Unable to send the password reset email."
+        ) from exc
 
 
 def forgot_password(request):
